@@ -1,5 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fresco="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="70dp"
     android:background="@color/transparent"
@@ -20,8 +19,8 @@
         android:layout_toEndOf="@+id/thumbnail"
         android:layout_toRightOf="@+id/thumbnail"
         android:fontFamily="@font/music"
-        android:text="Titles"
         android:maxLines="1"
+        android:text="Titles"
         android:textColor="#ffffff"
         android:textSize="25sp"
         android:textStyle="bold" />
@@ -48,7 +47,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:src="@drawable/ic_play_button"
         android:text="00:00"
         android:textColor="#ffffff"/>
 
@@ -56,10 +54,11 @@
         android:id="@+id/playIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
-        android:src="@drawable/ic_play_button" />
+        android:src="@drawable/ic_play_button_filled" />
 
 </RelativeLayout>

@@ -1,8 +1,11 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/list_back"
+
     tools:context="braincrush.mirza.com.MMusic.activities.HomeActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -26,7 +29,8 @@
             app:contentInsetLeft="0dp"
             app:contentInsetRight="0dp"
             app:contentInsetStart="0dp"
-            app:layout_scrollFlags="scroll|enterAlways"
+            app:layout_collapseMode="pin"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
             <LinearLayout
@@ -46,8 +50,8 @@
                     android:drawableLeft="@drawable/ic_letter_m"
                     android:drawableStart="@drawable/ic_letter_m"
                     android:fontFamily="@font/music"
-                    android:text=" Music"
                     android:letterSpacing="0.1"
+                    android:text=" Music"
                     android:textAlignment="center"
                     android:textAllCaps="false"
                     android:textSize="40sp"
@@ -57,6 +61,8 @@
                     android:id="@+id/tabs"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_collapseMode="pin"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed"
                     app:tabGravity="fill"
                     app:tabMode="fixed"
                     app:tabTextAppearance="@style/TabText" />
@@ -73,5 +79,244 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <RelativeLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/backgroundMain"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+        <RelativeLayout
+            android:id="@+id/miniLayout"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:background="@color/backgroundMain">
+
+            <ImageView
+                android:id="@+id/smallThumbnail"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@color/customGreen"
+                android:src="@drawable/ic_letter_m_box" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="-4dp"
+                android:layout_marginTop="-6.5dp"
+                android:layout_toEndOf="@id/smallThumbnail"
+                android:layout_toRightOf="@id/smallThumbnail"
+                android:paddingTop="-4dp"
+                android:progress="100"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/songTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_toEndOf="@+id/smallThumbnail"
+                android:layout_toLeftOf="@+id/playConsole"
+                android:layout_toRightOf="@+id/smallThumbnail"
+                android:layout_toStartOf="@+id/playConsole"
+                android:fontFamily="@font/music"
+                android:maxLines="1"
+                android:text="Titles"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/smallSongAartist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/songTitle"
+                android:layout_marginEnd="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@+id/smallThumbnail"
+                android:layout_toLeftOf="@+id/playConsole"
+                android:layout_toRightOf="@+id/smallThumbnail"
+                android:layout_toStartOf="@+id/playConsole"
+                android:fontFamily="@font/music"
+                android:maxLines="1"
+                android:padding="0dp"
+                android:text="Artist.........."
+                android:textColor="#ffffff"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/playConsole"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="20dp">
+
+                <ImageButton
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/rounded_view"
+                    android:src="@drawable/ic_back_small" />
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/rounded_view"
+                    android:src="@drawable/ic_play_button_small" />
+
+                <ImageButton
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/rounded_view"
+                    android:src="@drawable/ic_next_small" />
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/maxLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible">
+
+            <ImageButton
+                android:id="@+id/down_arrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@null"
+                android:backgroundTint="@null"
+                android:src="@drawable/ic_down_arrow" />
+
+            <ImageView
+                android:id="@+id/songThumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/seekBar"
+                android:layout_alignParentTop="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/music" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/seekBar"
+                android:layout_alignParentTop="true"
+                android:background="#4bffffff" />
+
+            <TextView
+                android:id="@+id/songName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="30dp"
+                android:fontFamily="@font/music"
+                android:gravity="center"
+                android:text="Song name"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/startTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/seekBar"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginStart="15dp"
+                android:text="00:00:00"
+                android:textColor="#ffffff"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/endTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/seekBar"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginRight="14dp"
+                android:text="00:00:00"
+                android:textColor="#ffffff"
+                android:textSize="15sp" />
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/linearLayout"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:progress="30"
+                android:theme="@style/MySeekBarTheme" />
+
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:paddingBottom="20dp"
+                android:paddingTop="20dp">
+
+                <ImageButton
+                    android:id="@+id/previous"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginRight="20dp"
+                    android:background="@drawable/rounded_view"
+                    android:src="@drawable/ic_back" />
+
+                <ImageButton
+                    android:id="@+id/play"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/rounded_view"
+                    android:src="@drawable/ic_play_button" />
+
+                <ImageButton
+                    android:id="@+id/next"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginStart="20dp"
+                    android:background="@drawable/rounded_view"
+                    android:src="@drawable/ic_next" />
+            </LinearLayout>
+
+        </RelativeLayout>
+
+
+    </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>
 

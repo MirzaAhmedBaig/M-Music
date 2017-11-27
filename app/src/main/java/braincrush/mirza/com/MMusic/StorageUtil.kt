@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken
  */
 class StorageUtil(private val context: Context) {
 
-    private val STORAGE = " com.valdioveliu.valdio.audioplayer.STORAGE"
+    private val STORAGE = " com.mirza.mmusic.STORAGE"
     private var preferences: SharedPreferences? = null
 
     fun storeAudio(arrayList: ArrayList<Audio>) {

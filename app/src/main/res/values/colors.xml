@@ -11,6 +11,7 @@
     <color name="cardview_light_background">#00bcd4</color>
     <color name="backgroundMain">#0E222E</color>
     <color name="customGreen">#3A7C58</color>
+    <color name="lightGreen">#5CBD77</color>
 
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="windowBackground">#FFFFFF</color>
