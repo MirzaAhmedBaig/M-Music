@@ -6,7 +6,7 @@
     android:orientation="vertical"
     tools:context="braincrush.mirza.com.MMusic.activities.MainActivity">
 
-    <RelativeLayout
+    <!--<RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:background="@drawable/music"
@@ -23,7 +23,6 @@
             android:textSize="25sp" />
 
         <SeekBar
-            android:id="@+id/seekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/linearLayout"
@@ -69,7 +68,7 @@
                 android:src="@drawable/ic_next" />
         </LinearLayout>
 
-    </RelativeLayout>
+    </RelativeLayout>-->
 
 
     <ListView

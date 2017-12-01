@@ -1,3 +1,4 @@
+/*
 package braincrush.mirza.com.MMusic.activities
 
 import android.media.AudioManager
@@ -19,9 +20,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MediaPlayer.OnCo
 
 
     private val TAG = MainActivity::class.java.simpleName
-    var mediaPlayer: MediaPlayer? = null
-    lateinit var audioList: ArrayList<Audio>
     lateinit var songs: ArrayList<String>
+    lateinit var audioList: ArrayList<Audio>
+    var mediaPlayer: MediaPlayer? = null
     private var resumePosition: Int = 0
     private var audioIndex: Int = 0
     private var activeAudio: Audio? = null
@@ -128,7 +129,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MediaPlayer.OnCo
                 val artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
 
                 // Save to audioList
-                audioList.add(Audio(data, title, album, artist))
+                audioList.add(Audio(data, title, album, artist,false))
                 songs.add(title)
             }
         }
@@ -226,3 +227,4 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, MediaPlayer.OnCo
 
 
 }
+*/

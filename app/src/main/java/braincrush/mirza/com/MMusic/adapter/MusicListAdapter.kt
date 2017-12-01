@@ -1,6 +1,9 @@
 package braincrush.mirza.com.MMusic.adapter
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -11,20 +14,23 @@ import android.widget.TextView
 import braincrush.mirza.com.MMusic.R
 import braincrush.mirza.com.MMusic.interfaces.ItemClickListener
 import braincrush.mirza.com.MMusic.models.Audio
+import com.squareup.picasso.Picasso
+import java.io.ByteArrayOutputStream
 
 
 /**
  * Created by MIRZA on 14/11/17.
  */
-class MusicListAdapter(private val type: Int, private val audioList: List<Audio>, val itemClickListener: ItemClickListener) : RecyclerView.Adapter<MusicListAdapter.MyViewHolder>() {
+class MusicListAdapter(private val context: Context, private val type: Int, private val audioList: List<Audio>, val itemClickListener: ItemClickListener) : RecyclerView.Adapter<MusicListAdapter.MyViewHolder>() {
 
     inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         init {
             view.setOnClickListener(this)
         }
 
-        override fun onClick(p0: View?) {
-            itemClickListener.onClick(p0, adapterPosition)
+        override fun onClick(view: View?) {
+            if (adapterPosition >= 0)
+                itemClickListener.onClick(view, adapterPosition)
         }
 
         var title: TextView = view.findViewById(R.id.title)
@@ -50,8 +56,24 @@ class MusicListAdapter(private val type: Int, private val audioList: List<Audio>
         mediaMetadataRetriever.setDataSource(audio.data)
         val data = mediaMetadataRetriever.embeddedPicture
         if (data != null) {
-            val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
-            holder.thumbnail.setImageBitmap(bitmap)
+            val bitmapImage = BitmapFactory.decodeByteArray(data, 0, data.size)
+            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 1, ByteArrayOutputStream())
+//            holder.thumbnail.setImageBitmap(bitmapImage)
+            Picasso.with(context).load(R.drawable.list_back).placeholder(R.drawable.ic_letter_m_box).into(object : com.squareup.picasso.Target {
+                override fun onBitmapFailed(errorDrawable: Drawable?) {
+
+                }
+
+                override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+                }
+
+                override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                    holder.thumbnail.setImageBitmap(bitmapImage)
+
+                }
+            })
+        } else {
+            holder.thumbnail.setBackgroundResource(R.drawable.ic_letter_m_box)
         }
 
         val durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
@@ -59,10 +81,14 @@ class MusicListAdapter(private val type: Int, private val audioList: List<Audio>
         var minutes: Long = ((java.lang.Long.parseLong(durationStr) / 1000L) - seconds) / 60L
 
         holder.songTime.text = "" + minutes + ":" + seconds
+        if (audioList[position].playing) {
+            holder.play.setBackgroundResource(R.drawable.ic_pause)
+        }
 
     }
 
     override fun getItemCount(): Int {
         return audioList.size
     }
+
 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +25,9 @@ class MusicListFragment : Fragment(), ItemClickListener {
     private var type: Int? = null
     private lateinit var list: ArrayList<Audio>
     private lateinit var globalView: View
+    private lateinit var recyclerView: RecyclerView
     private lateinit var musicPlayerListener: MusicPlayerListener
+    private lateinit var adapter: MusicListAdapter
 
     fun setUpMusicListener(musicPlayerListener: MusicPlayerListener) {
         this.musicPlayerListener = musicPlayerListener
@@ -40,9 +43,10 @@ class MusicListFragment : Fragment(), ItemClickListener {
             type = arguments.getInt(TYPE)
             list = (arguments.getSerializable(LIST) as ArrayList<Audio>?)!!
 
-
+            recyclerView = view.findViewById(R.id.recyclerview)
             view.recyclerview.layoutManager = LinearLayoutManager(activity)
-            view.recyclerview.adapter = MusicListAdapter(type!!, list, this)
+            adapter = MusicListAdapter(context, type!!, list, this)
+            view.recyclerview.adapter = adapter
 
             val decoration = DividerItemDecoration(activity, VERTICAL)
             view.recyclerview.addItemDecoration(decoration)
@@ -53,6 +57,11 @@ class MusicListFragment : Fragment(), ItemClickListener {
 
 
     override fun onClick(view: View?, index: Int) {
+        list[index].playing = true
+        (0 until list.size)
+                .filter { it != index }
+                .forEach { list[it].playing = false }
+        adapter.notifyDataSetChanged()
         if (musicPlayerListener != null) {
             musicPlayerListener.onSongClick(list[index])
         }

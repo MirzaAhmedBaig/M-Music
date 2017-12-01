@@ -7,8 +7,7 @@
     <ImageView
         android:id="@+id/thumbnail"
         android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_letter_m_box" />
+        android:layout_height="50dp" />
 
     <TextView
         android:id="@+id/title"
@@ -48,7 +47,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:text="00:00"
-        android:textColor="#ffffff"/>
+        android:textColor="#ffffff" />
 
     <ImageView
         android:id="@+id/playIcon"
@@ -59,6 +58,6 @@
         android:layout_alignParentRight="true"
         android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
-        android:src="@drawable/ic_play_button_filled" />
+        android:background="@drawable/ic_play_button_filled" />
 
 </RelativeLayout>
