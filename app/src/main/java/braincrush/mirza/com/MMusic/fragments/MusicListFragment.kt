@@ -63,7 +63,7 @@ class MusicListFragment : Fragment(), ItemClickListener {
                 .forEach { list[it].playing = false }
         adapter.notifyDataSetChanged()
         if (musicPlayerListener != null) {
-            musicPlayerListener.onSongClick(list[index])
+            musicPlayerListener.onSongClick(list[index], index)
         }
     }
 
@@ -76,7 +76,7 @@ class MusicListFragment : Fragment(), ItemClickListener {
             val fragment = MusicListFragment()
             val args = Bundle()
             args.putInt(TYPE, type)
-            args.putSerializable(LIST, list)
+            args.putParcelableArrayList(LIST, list)
             fragment.arguments = args
             return fragment
         }

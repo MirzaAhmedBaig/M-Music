@@ -2,8 +2,8 @@ package braincrush.mirza.com.MMusic.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioAttributes
 import android.media.AudioManager
@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.RelativeLayout
+import android.widget.SeekBar
 import android.widget.Toast
 import braincrush.mirza.com.MMusic.R
 import braincrush.mirza.com.MMusic.adapter.ViewPagerAdapter
@@ -123,7 +124,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 supportActionBar!!.show()
                 viewpager!!.visibility = View.VISIBLE
-                Log.d(ContentValues.TAG, "Slide Offset :" + slideOffset)
                 maxLayout!!.alpha = slideOffset
                 viewpager!!.alpha = (1 - slideOffset)
                 appBar!!.alpha = (1 - slideOffset)
@@ -237,11 +237,26 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
                 favorite_view.setBackgroundResource(R.drawable.ic_fav_emp)
             }
         }
+
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+                mediaPlayer!!.seekTo(p0!!.progress)
+            }
+
+        })
     }
 
     @SuppressLint("Recycle")
     private fun loadAudio() {
         val contentResolver = contentResolver
+        var decoded: Bitmap
 
         val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0"
@@ -255,9 +270,21 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
                 val title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
                 val album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))
                 val artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
+                var time = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
+
+                var endTime: String
+                var seconds: Int = ((java.lang.Long.parseLong(time) / 1000L) % 60).toInt()
+                var minutes: Long = ((java.lang.Long.parseLong(time) / 1000L) - seconds) / 60L
+                if (minutes >= 60) {
+                    minutes %= 60
+                    var hr: Int = (((java.lang.Long.parseLong(time) / 1000L) / 60) / 60).toInt()
+                    endTime = "$hr:$minutes:$seconds"
+                } else {
+                    endTime = "$minutes:$seconds"
+                }
 
                 // Save to audioList
-                audioList.add(Audio(data, title, album, artist, false))
+                audioList.add(Audio(data, title, album, artist, endTime, java.lang.Long.parseLong(time), false))
             }
         }
         cursor!!.close()
@@ -294,23 +321,9 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
             mediaPlayer!!.stop()
 
         }
+        startTime.text = "00:00"
+//        endTime.text = activeAudio!!.endTime
 
-        val mediaMetadataRetriever = MediaMetadataRetriever()
-        mediaMetadataRetriever.setDataSource(data)
-        val durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-        var seconds: Int = ((java.lang.Long.parseLong(durationStr) / 1000L) % 60).toInt()
-        var minutes: Long = ((java.lang.Long.parseLong(durationStr) / 1000L) - seconds) / 60L
-        if (minutes >= 60) {
-            minutes %= 60
-            var hr: Int = (((java.lang.Long.parseLong(durationStr) / 1000L) / 60) / 60).toInt()
-            startTime.text = "00:00:00"
-            endTime.text = "$hr:$minutes:$seconds"
-        } else {
-            startTime.text = "00:00"
-            endTime.text = "$minutes:$seconds"
-        }
-
-//        mediaPlayer!!.prepareAsync()
     }
 
     private fun playMedia() {
@@ -335,7 +348,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
 
                         seekBar.progress = (mediaPlayer!!.currentPosition)
                         progressBar.progress = mediaPlayer!!.currentPosition
-                        Log.d(TAG, "Current Position : ${seekBar.progress}")
                     }
                     handler.postDelayed(this, 1000)
                 }
@@ -426,34 +438,27 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
         val data = mediaMetadataRetriever.embeddedPicture
         if (data != null) {
             val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
-            smallThumbnail.setImageBitmap(bitmap)
+            var bitmapI = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
+            smallThumbnail.setImageBitmap(bitmapI)
             songThumbnail.setImageBitmap(bitmap)
         } else {
             smallThumbnail.setBackgroundResource(R.drawable.music)
             songThumbnail.setBackgroundResource(R.drawable.music)
         }
-        val durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-        var seconds: Int = ((java.lang.Long.parseLong(durationStr) / 1000L) % 60).toInt()
-        var minutes: Long = ((java.lang.Long.parseLong(durationStr) / 1000L) - seconds) / 60L
-        if (minutes >= 60) {
-            minutes %= 60
-            var hr: Int = (((java.lang.Long.parseLong(durationStr) / 1000L) / 60) / 60).toInt()
-            startTime.text = "00:00:00"
-            endTime.text = "$hr:$minutes:$seconds"
-        } else {
-            startTime.text = "00:00"
-            endTime.text = "$minutes:$seconds"
-        }
-        seekBar.max = mediaPlayer!!.duration
-        progressBar.max = mediaPlayer!!.duration
-        Log.d(TAG, "Max duration : ${seekBar.max}")
+
+        startTime.text = "00:00"
+        endTime.text = audio.endTime
+
+        seekBar.progress = 0
+        progressBar.progress = 0
+        seekBar.max = audio.duration.toInt()
+        progressBar.max = audio.duration.toInt()
+        activeAudio = audio
 
     }
 
     override fun onPrepared(p0: MediaPlayer?) {
         playMedia()
-
-
     }
 
     override fun onCompletion(p0: MediaPlayer?) {
@@ -465,8 +470,8 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
     }
 
 
-    override fun onSongClick(audio: Audio) {
-
+    override fun onSongClick(audio: Audio, index: Int) {
+        audioIndex = index
         updatePlayerData(audio)
         if (bottom_sheet.visibility == View.GONE) {
             viewpager!!.visibility = View.GONE

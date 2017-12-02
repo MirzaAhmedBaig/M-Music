@@ -3,7 +3,6 @@ package braincrush.mirza.com.MMusic.adapter
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -14,8 +13,6 @@ import android.widget.TextView
 import braincrush.mirza.com.MMusic.R
 import braincrush.mirza.com.MMusic.interfaces.ItemClickListener
 import braincrush.mirza.com.MMusic.models.Audio
-import com.squareup.picasso.Picasso
-import java.io.ByteArrayOutputStream
 
 
 /**
@@ -52,43 +49,47 @@ class MusicListAdapter(private val context: Context, private val type: Int, priv
         val audio = audioList[position]
         holder.title.text = audio.title
         holder.artist.text = audio.artist
+        holder.songTime.text = audio.endTime
+
         val mediaMetadataRetriever = MediaMetadataRetriever()
         mediaMetadataRetriever.setDataSource(audio.data)
-        val data = mediaMetadataRetriever.embeddedPicture
-        if (data != null) {
-            val bitmapImage = BitmapFactory.decodeByteArray(data, 0, data.size)
-            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 1, ByteArrayOutputStream())
-//            holder.thumbnail.setImageBitmap(bitmapImage)
-            Picasso.with(context).load(R.drawable.list_back).placeholder(R.drawable.ic_letter_m_box).into(object : com.squareup.picasso.Target {
-                override fun onBitmapFailed(errorDrawable: Drawable?) {
+        val picData = mediaMetadataRetriever.embeddedPicture
+        val options = BitmapFactory.Options()
+        options.inJustDecodeBounds = true
+        if (picData != null) {
+            var bitmapImage = BitmapFactory.decodeByteArray(picData, 0, picData.size)
+            var bitmapI = Bitmap.createScaledBitmap(bitmapImage, 100, 100, true)
+            holder.thumbnail.setImageBitmap(bitmapI)
 
-                }
-
+            /*val target = object : com.squareup.picasso.Target {
                 override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
                 }
 
-                override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                    holder.thumbnail.setImageBitmap(bitmapImage)
-
+                override fun onBitmapFailed(errorDrawable: Drawable?) {
                 }
-            })
+
+                override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                }
+
+            }
+            Picasso.with(context).load(R.drawable.dummy).into(target)
+            holder.thumbnail.tag = target*/
         } else {
-            holder.thumbnail.setBackgroundResource(R.drawable.ic_letter_m_box)
+            holder.thumbnail.setBackgroundResource(R.drawable.ic_compact_disc)
         }
-
-        val durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-        var seconds: Int = ((java.lang.Long.parseLong(durationStr) / 1000L) % 60).toInt()
-        var minutes: Long = ((java.lang.Long.parseLong(durationStr) / 1000L) - seconds) / 60L
-
-        holder.songTime.text = "" + minutes + ":" + seconds
         if (audioList[position].playing) {
             holder.play.setBackgroundResource(R.drawable.ic_pause)
+        } else {
+            holder.play.setBackgroundResource(R.drawable.ic_play_button_filled)
         }
-
     }
 
     override fun getItemCount(): Int {
         return audioList.size
     }
+
+    /*override fun getItemViewType(position: Int): Int {
+        return if (audioList[position].playing) 1 else 0
+    }*/
 
 }

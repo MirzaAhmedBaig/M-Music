@@ -4,8 +4,9 @@
     <item android:drawable="@color/backgroundMain" />
 
     <item>
-        <bitmap android:src="@drawable/music_splash"
-            android:gravity="center" />
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/dummy" />
 
     </item>
 

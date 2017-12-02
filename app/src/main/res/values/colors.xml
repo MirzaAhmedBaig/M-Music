@@ -17,5 +17,6 @@
     <color name="windowBackground">#FFFFFF</color>
     <color name="navigationBarColor">#000000</color>
     <color name="transparent">#2477a5a1</color>
+    <color name="ringColor">#d0ffffff</color>
     <!--<color name="colorAccent">#c8e8ff</color>-->
 </resources>

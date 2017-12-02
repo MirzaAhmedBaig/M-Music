@@ -1,10 +1,14 @@
 package braincrush.mirza.com.MMusic
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
+
 
 /**
  * Created by avantari on 12/1/17.
@@ -14,4 +18,21 @@ fun getImageUri(inContext: Context, inImage: Bitmap): Uri {
     inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
     val path = MediaStore.Images.Media.insertImage(inContext.contentResolver, inImage, "Title", null)
     return Uri.parse(path)
+}
+
+fun createImageFile(activity: Activity): File? {
+    val imageFileName = "JPEG_"
+    var mFileTemp: File? = null
+    val root = activity.getDir("my_sub_dir", Context.MODE_PRIVATE).getAbsolutePath()
+    val myDir = File(root + "/Img")
+    if (!myDir.exists()) {
+        myDir.mkdirs()
+    }
+    try {
+        mFileTemp = File.createTempFile(imageFileName, ".jpg", myDir.absoluteFile)
+    } catch (e1: IOException) {
+        e1.printStackTrace()
+    }
+
+    return mFileTemp
 }
