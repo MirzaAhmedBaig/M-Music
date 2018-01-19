@@ -9,7 +9,7 @@
     </style>
 
     <style name="MySeekBarTheme" parent="Widget.AppCompat.SeekBar">
-        <item name="colorAccent">#5CBD77</item>
+        <item name="colorAccent">#77A5A1</item>
         <item name="android:colorBackground">#005cbd77</item>
     </style>
 

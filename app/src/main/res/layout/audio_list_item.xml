@@ -15,9 +15,9 @@
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
         android:layout_toEndOf="@+id/thumbnail"
-        android:layout_toLeftOf="@+id/songTime"
+        android:layout_toLeftOf="@+id/end_view"
         android:layout_toRightOf="@+id/thumbnail"
-        android:layout_toStartOf="@+id/songTime"
+        android:layout_toStartOf="@+id/end_view"
         android:fontFamily="@font/music"
         android:maxLines="1"
         android:text="Titles"
@@ -33,9 +33,9 @@
         android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
         android:layout_toEndOf="@+id/thumbnail"
-        android:layout_toLeftOf="@+id/playIcon"
+        android:layout_toLeftOf="@+id/end_view"
         android:layout_toRightOf="@+id/thumbnail"
-        android:layout_toStartOf="@+id/playIcon"
+        android:layout_toStartOf="@+id/end_view"
         android:fontFamily="@font/music"
         android:padding="0dp"
         android:text="Artist.........."
@@ -43,24 +43,27 @@
         android:textSize="16sp"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/songTime"
+    <FrameLayout
+        android:id="@+id/end_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:text="00:00"
-        android:textColor="#ffffff" />
+        android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/playIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
-        android:background="@drawable/ic_play_button_filled" />
+        <ImageView
+            android:id="@+id/playIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|top"
+            android:background="@drawable/ic_play_button_filled" />
 
+        <TextView
+            android:id="@+id/songTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            android:text="00:00"
+            android:textColor="#ffffff" />
+    </FrameLayout>
 </RelativeLayout>

@@ -3,8 +3,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    tools:context="braincrush.mirza.com.MMusic.fragments.MusicListFragment">
+    tools:context=".fragments.MusicListFragmentc">
 
+    <TextView
+        android:id="@+id/emptySong_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:fontFamily="@font/music"
+        android:gravity="center"
+        android:text="No songs found"
+        android:textAlignment="center"
+        android:textColor="@color/secondary_text"
+        android:textSize="25dp"
+        android:visibility="gone" />
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerview"
             android:layout_width="match_parent"

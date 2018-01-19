@@ -22,7 +22,7 @@
         android:background="@color/backgroundMain"
         android:id="@+id/bottom_sheet"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
-        tools:context="braincrush.mirza.com.MMusic.fragments.MusicPlayerFragment">
+        tools:contecom.mirza.mmusic.fragments.MusicPlayerFragmentment">
 
         <LinearLayout
             android:id="@+id/miniLayout"

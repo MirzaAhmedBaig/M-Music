@@ -6,7 +6,7 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/dummy" />
+            android:src="@drawable/letter_m" />
 
     </item>
 
