@@ -3,33 +3,36 @@ package com.mirza.mmusic.activities
 import android.Manifest
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.AudioAttributes
-import android.media.AudioManager
 import android.media.MediaMetadataRetriever
-import android.media.MediaPlayer
-import android.os.AsyncTask
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
+import android.os.*
 import android.provider.MediaStore
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.CoordinatorLayout
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.Toast
+import com.mirza.mmusic.AppPreferences
+import com.mirza.mmusic.MediaPlayerClasses.MediaPlayerService
 import com.mirza.mmusic.R
+import com.mirza.mmusic.adapter.PlayerPagerAdapter
 import com.mirza.mmusic.adapter.ViewPagerAdapter
+import com.mirza.mmusic.fragments.LyricsFragment
 import com.mirza.mmusic.fragments.MusicListFragment
+import com.mirza.mmusic.fragments.SongInfoFragment
 import com.mirza.mmusic.getDp
+import com.mirza.mmusic.interfaces.MediaPlayerControllerListener
 import com.mirza.mmusic.interfaces.MusicPlayerListener
 import com.mirza.mmusic.isFileExist
 import com.mirza.mmusic.models.Audio
@@ -38,47 +41,110 @@ import com.mirza.mmusic.models.db.RealmRecentAudio
 import com.squareup.picasso.Picasso
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_home.*
-import java.io.IOException
 import java.net.URL
 
 
-class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerControllerListener {
 
+
+    private val TAG = HomeActivity::class.java.simpleName
 
     private var audioList = ArrayList<Audio>()
     private var recentList: ArrayList<Audio>? = null
     private var favList: ArrayList<Audio>? = null
     private var dataList: ArrayList<String>? = null
     private var mBottomSheetBehavior: BottomSheetBehavior<View>? = null
-    private val TAG = HomeActivity::class.java.simpleName
 
-    var mediaPlayer: MediaPlayer? = null
     private var resumePosition: Int = 0
-    private var audioIndex: Int = 0
-    private var activeAudio: Audio? = null
     private var isRepeat: Boolean = false
     private var isFirst: Boolean = true
+
+    private var currentIndex: Int = 0
 
     private var allMusicFragment: MusicListFragment? = null
     private var favMusicFragment: MusicListFragment? = null
     private var recentMusicFragment: MusicListFragment? = null
+    private var songInfoFragment: SongInfoFragment? = null
+    private var lyricsFragment: LyricsFragment? = null
 
     private val permsRequestCode = 200
     private val perms = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE/*, Manifest.permission.ACCESS_FINE_LOCATION*/)
+
+    private var mediaPlayerService: MediaPlayerService? = null
+    private var playIntent: Intent? = null
+    private var musicBound: Boolean = false
+
+
+    private val handler = Handler()
+    private var runnable: Runnable? = null
+
+    private var appPreferences: AppPreferences? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        setAppPreferences()
         setUpBottomSheet()
         setSupportActionBar(toolbar)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(perms, permsRequestCode)
-        } else {
-            LoadData().execute()
+    }
+
+    override fun onResume() {
+        if (runnable != null)
+            handler.post(runnable)
+        else
+            doMediaTimeSeekChanges()
+        super.onResume()
+    }
+
+    override fun onPause() {
+        handler.removeCallbacks(runnable)
+        super.onPause()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (playIntent == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(perms, permsRequestCode)
+            } else {
+                LoadData().execute()
+            }
+            playIntent = Intent(this, MediaPlayerService::class.java)
+            startService(playIntent)
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE)
         }
     }
 
+    override fun onDestroy() {
+        stopService(playIntent)
+        if (mediaPlayerService != null) {
+            unbindService(musicConnection)
+        }
+        mediaPlayerService = null
+        super.onDestroy()
+    }
+
+    private fun setAppPreferences() {
+        appPreferences = AppPreferences(this)
+    }
+
+
+    //connect to the service
+    private val musicConnection: ServiceConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder: MediaPlayerService.MusicBinder = service as MediaPlayerService.MusicBinder
+            mediaPlayerService = binder.getService()
+            musicBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            musicBound = false
+        }
+
+    }
 
     override fun onBackPressed() {
         if (mBottomSheetBehavior!!.state == BottomSheetBehavior.STATE_EXPANDED) {
@@ -117,15 +183,16 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
         mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
         bottom_sheet.visibility = View.GONE
 
-
         mBottomSheetBehavior!!.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
+                maxLayout.bringToFront()
                 when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> {
                         viewpager!!.visibility = View.GONE
                         supportActionBar!!.hide()
                     }
                     BottomSheetBehavior.STATE_COLLAPSED -> {
+                        miniLayout.bringToFront()
                         if (isFirst) {
                             isFirst = false
                             val x = viewpager.layoutParams as CoordinatorLayout.LayoutParams
@@ -135,7 +202,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
                         miniLayout!!.visibility = View.VISIBLE
                         viewpager.alpha = 1f
                         appBar.alpha = 1f
-
                     }
                     BottomSheetBehavior.STATE_HIDDEN -> {
                     }
@@ -148,8 +214,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
                 maxLayout!!.alpha = slideOffset
                 viewpager!!.alpha = (1 - slideOffset)
                 appBar!!.alpha = (1 - slideOffset)
-
-
             }
         })
 
@@ -163,10 +227,77 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
                 } else {
                     miniLayout!!.viewTreeObserver.removeGlobalOnLayoutListener(this)
                 }
-
             }
         }
         )
+    }
+
+    private fun setUpPlayerPager() {
+        val adapter = PlayerPagerAdapter(supportFragmentManager)
+        songInfoFragment = SongInfoFragment()
+        lyricsFragment = LyricsFragment()
+        adapter.addFragment(songInfoFragment!!, "details")
+        adapter.addFragment(lyricsFragment!!, "lyrics")
+
+        playerPager.adapter = adapter
+
+        playerPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {
+            }
+
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                if (currentIndex == position) {
+                    if (currentIndex == 0) {
+                        w_indicator_one.scaleX = 2f - positionOffset
+                        w_indicator_one.scaleY = 2f - positionOffset
+
+                        w_indicator_two.scaleX = 1f + positionOffset
+                        w_indicator_two.scaleY = 1f + positionOffset
+                    }
+                } else if (currentIndex > position) {
+                    if (currentIndex == 1) {
+                        w_indicator_one.scaleX = 2f - positionOffset
+                        w_indicator_one.scaleY = 2f - positionOffset
+
+                        w_indicator_two.scaleX = 1f + positionOffset
+                        w_indicator_two.scaleY = 1f + positionOffset
+                    }
+                }
+                updateIndicator()
+            }
+
+            override fun onPageSelected(position: Int) {
+                currentIndex = position
+                setDotIndicator(position)
+            }
+
+        })
+    }
+
+    fun setDotIndicator(position: Int) {
+        when (position) {
+            0 -> {
+                w_indicator_one.scaleX = 2f
+                w_indicator_one.scaleY = 2f
+
+                w_indicator_two.scaleX = 1f
+                w_indicator_two.scaleY = 1f
+                updateIndicator()
+            }
+            1 -> {
+                w_indicator_one.scaleX = 1f
+                w_indicator_one.scaleY = 1f
+
+                w_indicator_two.scaleX = 2f
+                w_indicator_two.scaleY = 2f
+                updateIndicator()
+            }
+        }
+    }
+
+    private fun updateIndicator() {
+        w_indicator_one.invalidate()
+        w_indicator_two.invalidate()
     }
 
     private fun setUpListeners() {
@@ -178,13 +309,11 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
         }
 
         play_view.setOnClickListener {
-            if (mediaPlayer!!.isPlaying) {
+            if (mediaPlayerService!!.isPlaying()) {
                 pauseMedia()
-
             } else {
                 playMedia()
             }
-
         }
         next_view.setOnClickListener {
             skipToNext()
@@ -194,14 +323,13 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
         }
 
         play_view_m.setOnClickListener {
-            if (mediaPlayer!!.isPlaying) {
+            if (mediaPlayerService!!.isPlaying()) {
                 pauseMedia()
-
             } else {
                 resumeMedia()
             }
-
         }
+
         next_view_m.setOnClickListener {
             skipToNext()
         }
@@ -209,16 +337,14 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
             skipToPrevious()
         }
 
-
         play.setOnClickListener {
-            if (mediaPlayer!!.isPlaying) {
+            if (mediaPlayerService!!.isPlaying()) {
                 pauseMedia()
-
             } else {
                 playMedia()
             }
-
         }
+
         next.setOnClickListener {
             skipToNext()
         }
@@ -227,9 +353,8 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
         }
 
         play_m.setOnClickListener {
-            if (mediaPlayer!!.isPlaying) {
+            if (mediaPlayerService!!.isPlaying()) {
                 pauseMedia()
-
             } else {
                 resumeMedia()
             }
@@ -250,6 +375,7 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
                 isRepeat = true
                 repeat_button.setImageResource(R.drawable.ic_repeat)
             }
+            mediaPlayerService!!.setIsRepeat(isRepeat)
         }
         favorite_view.setOnClickListener {
             changeFavAudio()
@@ -258,23 +384,17 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
         songList_btn.setOnClickListener {
             viewpager.currentItem = 0
             mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
-
         }
 
         lyrics_btn.setOnClickListener {
-
+            playerPager.setCurrentItem(1, true)
         }
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-
-            }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-            }
-
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {}
+            override fun onStartTrackingTouch(p0: SeekBar?) {}
             override fun onStopTrackingTouch(p0: SeekBar?) {
-                mediaPlayer!!.seekTo(p0!!.progress)
+                mediaPlayerService!!.seekTo(p0!!.progress)
             }
 
         })
@@ -324,11 +444,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
         val realm = Realm.getDefaultInstance()
         val list1 = realm.where(RealmRecentAudio::class.java).findAll()
         recentList = ArrayList()
-        /*(0 until list1.size)
-                .map {
-                    isFavAudioReturn(Audio(list1[it]!!.data, list1[it]!!.title, list1[it]!!.album, list1[it]!!.artist, list1[it]!!.endTime, list1[it]!!.duration, false, true))
-                }
-                .forEach { recentList!!.add(it) }*/
 
         for (i in 0 until list1.size) {
             if (isFileExist(list1[i]!!.data)) {
@@ -354,18 +469,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
                 realm.commitTransaction()
             }
         }
-        /*(0 until list2.size)
-                .map {
-                    if (isFileExist(list2[it]!!.data))
-                        Audio(list2[it]!!.data, list2[it]!!.title, list2[it]!!.album, list2[it]!!.artist, list2[it]!!.endTime, list2[it]!!.duration, false, true)
-                    else
-                        return
-                }
-                .forEach {
-                    favList!!.add(it)
-
-                }*/
-
     }
 
     private fun loadRecentFavAudio() {
@@ -386,188 +489,107 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
     private fun changeFavAudio() {
         val realm = Realm.getDefaultInstance()
         realm.beginTransaction()
-        val index = dataList!!.indexOf(activeAudio!!.data)
-        if (activeAudio!!.isFav) {
-            activeAudio!!.isFav = false
+        //
+        val activeAudio = mediaPlayerService!!.getActiveAudio()
+
+        val index = dataList!!.indexOf(activeAudio.data)
+        if (activeAudio.isFav) {
+            activeAudio.isFav = false
             audioList[index].isFav = false
             favorite_view.setImageResource(R.drawable.ic_fav_emp)
-            val favAudio = realm.where(RealmFavAudio::class.java).equalTo("data", activeAudio!!.data).findFirst()
+            val favAudio = realm.where(RealmFavAudio::class.java).equalTo("data", activeAudio.data).findFirst()
             favAudio!!.deleteFromRealm()
-            recentMusicFragment!!.makeFaveoOrUnFavAudio(activeAudio!!.data!!, false)
+            recentMusicFragment!!.makeFaveoOrUnFavAudio(activeAudio.data!!, false)
         } else {
-            activeAudio!!.isFav = true
+            activeAudio.isFav = true
             audioList[index].isFav = true
             val newFav = RealmFavAudio()
-            newFav.data = activeAudio!!.data!!
-            newFav.title = activeAudio!!.title!!
-            newFav.album = activeAudio!!.album!!
-            newFav.artist = activeAudio!!.artist!!
-            newFav.endTime = activeAudio!!.endTime
-            newFav.duration = activeAudio!!.duration
+            newFav.data = activeAudio.data!!
+            newFav.title = activeAudio.title!!
+            newFav.album = activeAudio.album!!
+            newFav.artist = activeAudio.artist!!
+            newFav.endTime = activeAudio.endTime
+            newFav.duration = activeAudio.duration
             newFav.playing = false
 
             realm.copyToRealmOrUpdate(newFav)
             favorite_view.setImageResource(R.drawable.ic_fav_filled)
-            recentMusicFragment!!.makeFaveoOrUnFavAudio(activeAudio!!.data!!, true)
+            recentMusicFragment!!.makeFaveoOrUnFavAudio(activeAudio.data!!, true)
         }
         realm.commitTransaction()
-        favMusicFragment!!.addOrRemoveAudio(activeAudio!!)
+        favMusicFragment!!.addOrRemoveAudio(activeAudio)
 
 
     }
 
     private fun initMediaPlayer(data: String?) {
-        if (mediaPlayer == null)
-            mediaPlayer = MediaPlayer()//new MediaPlayer instance
-
-        //Set up MediaPlayer event listeners
-        mediaPlayer!!.setOnCompletionListener(this)
-//        mediaPlayer!!.setOnErrorListener(this)
-        mediaPlayer!!.setOnPreparedListener(this)
-//        mediaPlayer!!.setOnBufferingUpdateListener(this)
-//        mediaPlayer!!.setOnSeekCompleteListener(this)
-//        mediaPlayer!!.setOnInfoListener(this)
-        //Reset so that the MediaPlayer is not pointing to another data source
-        mediaPlayer!!.reset()
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mediaPlayer!!.setAudioAttributes(AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build())
-        } else {
-            mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
-        }
-        try {
-            // Set the data source to the mediaFile location
-            mediaPlayer!!.setDataSource(data)
-        } catch (e: IOException) {
-            e.printStackTrace()
-            mediaPlayer!!.stop()
-
-        }
+        mediaPlayerService!!.songClicked(data!!)
         startTime.text = "00:00"
-//        endTime.text = activeAudio!!.endTime
-
     }
 
     private fun playMedia() {
-        if (!mediaPlayer!!.isPlaying) {
-            mediaPlayer!!.start()
-            play.setBackgroundResource(R.drawable.ic_pause_button)
-            play_m.setBackgroundResource(R.drawable.ic_pause_button_small)
-            val handler = Handler()
-            val runnable = object : Runnable {
-                override fun run() {
-                    if (mediaPlayer!!.currentPosition > 0) {
+        mediaPlayerService!!.startPlayer()
+        play.setBackgroundResource(R.drawable.ic_pause_button)
+        play_m.setBackgroundResource(R.drawable.ic_pause_button_small)
 
-                        var seconds: Int = ((mediaPlayer!!.currentPosition / 1000) % 60)
-                        var minutes: Int = ((mediaPlayer!!.currentPosition / 1000) - seconds) / 60
-                        if (minutes >= 60) {
-                            minutes %= 60
-                            var hr: Int = (((mediaPlayer!!.currentPosition / 1000) / 60) / 60)
-                            startTime.text = "$hr:$minutes:$seconds"
-                        } else {
-                            startTime.text = "$minutes:$seconds"
-                        }
-
-//                        seekBar.progress = (mediaPlayer!!.currentPosition)
-//                        progressBar.progress = mediaPlayer!!.currentPosition
-                        animateSeek((mediaPlayer!!.currentPosition))
-                        animateProgress((mediaPlayer!!.currentPosition))
-                    }
-                    handler.postDelayed(this, 1000)
-                }
-            }
-            handler.post(runnable)
-        }
-    }
-
-    private fun stopMedia() {
-        if (mediaPlayer == null) return
-        if (mediaPlayer!!.isPlaying) {
-            mediaPlayer!!.stop()
-            play.setBackgroundResource(R.drawable.ic_play_button)
-            play_m.setBackgroundResource(R.drawable.ic_play_button_small)
-        }
+        lyricsFragment!!.changeSong(mediaPlayerService!!.getActiveAudio())
+        songInfoFragment!!.changeSong(mediaPlayerService!!.getActiveAudio())
     }
 
     private fun pauseMedia() {
-        if (mediaPlayer!!.isPlaying) {
-            mediaPlayer!!.pause()
-            resumePosition = mediaPlayer!!.currentPosition
+        val activeAudio = mediaPlayerService!!.getActiveAudio()
+
+        if (mediaPlayerService!!.isPlaying()) {
+            mediaPlayerService!!.pausePlayer()
+            resumePosition = mediaPlayerService!!.getCurrentPosition()
             play.setBackgroundResource(R.drawable.ic_play_button)
             play_m.setBackgroundResource(R.drawable.ic_play_button_small)
 
-            allMusicFragment!!.pauseAudio(activeAudio!!, false)
-            favMusicFragment!!.pauseAudio(activeAudio!!, false)
-            recentMusicFragment!!.pauseAudio(activeAudio!!, false)
+            allMusicFragment!!.pauseAudio(activeAudio, false)
+            favMusicFragment!!.pauseAudio(activeAudio, false)
+            recentMusicFragment!!.pauseAudio(activeAudio, false)
         }
     }
 
     private fun resumeMedia() {
-        if (!mediaPlayer!!.isPlaying) {
-            mediaPlayer!!.seekTo(resumePosition)
-            mediaPlayer!!.start()
+        val activeAudio = mediaPlayerService!!.getActiveAudio()
+        if (!mediaPlayerService!!.isPlaying()) {
+            mediaPlayerService!!.seekTo(resumePosition)
+            mediaPlayerService!!.startPlayer()
             play.setBackgroundResource(R.drawable.ic_pause_button)
             play_m.setBackgroundResource(R.drawable.ic_pause_button_small)
 
-            allMusicFragment!!.pauseAudio(activeAudio!!, true)
-            favMusicFragment!!.pauseAudio(activeAudio!!, true)
-            recentMusicFragment!!.pauseAudio(activeAudio!!, true)
+            allMusicFragment!!.pauseAudio(activeAudio, true)
+            favMusicFragment!!.pauseAudio(activeAudio, true)
+            recentMusicFragment!!.pauseAudio(activeAudio, true)
         }
     }
 
     private fun skipToNext() {
-        val oldAudio = activeAudio!!
-        if (audioIndex == audioList.size - 1) {
-            //if last in playlist
-            audioIndex = 0
-            activeAudio = audioList[audioIndex]
-        } else {
-            //get next in playlist
-            activeAudio = audioList[++audioIndex]
-        }
 
+        val oldAudio = mediaPlayerService!!.getActiveAudio()
+        mediaPlayerService!!.skipToNext()
+        val activeAudio = mediaPlayerService!!.getActiveAudio()
 
-        stopMedia()
-        //reset mediaPlayer
-        mediaPlayer!!.reset()
-        initMediaPlayer(activeAudio!!.data)
-        mediaPlayer!!.prepareAsync()
         play.setBackgroundResource(R.drawable.ic_pause_button)
         play_m.setBackgroundResource(R.drawable.ic_pause_button_small)
-        updatePlayerData(activeAudio!!)
-        allMusicFragment!!.updatePlayingStatus(activeAudio!!, oldAudio)
-        favMusicFragment!!.updatePlayingStatus(activeAudio!!, oldAudio)
-        recentMusicFragment!!.updatePlayingStatus(activeAudio!!, oldAudio)
+        updatePlayerData(activeAudio)
+        allMusicFragment!!.updatePlayingStatus(activeAudio, oldAudio)
+        favMusicFragment!!.updatePlayingStatus(activeAudio, oldAudio)
+        recentMusicFragment!!.updatePlayingStatus(activeAudio, oldAudio)
     }
 
     private fun skipToPrevious() {
-        val oldAudio = activeAudio!!
-        if (audioIndex == 0) {
-            //if first in playlist
-            //set index to the last of audioList
-            audioIndex = audioList.size - 1
-            activeAudio = audioList[audioIndex]
-        } else {
-            //get previous in playlist
-            activeAudio = audioList[--audioIndex]
-        }
+        val oldAudio = mediaPlayerService!!.getActiveAudio()
+        mediaPlayerService!!.skipToPrevious()
+        val activeAudio = mediaPlayerService!!.getActiveAudio()
 
-
-        stopMedia()
-        //reset mediaPlayer
-        mediaPlayer!!.reset()
-        initMediaPlayer(activeAudio!!.data)
-        mediaPlayer!!.prepareAsync()
         play.setBackgroundResource(R.drawable.ic_pause_button)
         play_m.setBackgroundResource(R.drawable.ic_pause_button_small)
-        updatePlayerData(activeAudio!!)
-        allMusicFragment!!.updatePlayingStatus(activeAudio!!, oldAudio)
-        favMusicFragment!!.updatePlayingStatus(activeAudio!!, oldAudio)
-        recentMusicFragment!!.updatePlayingStatus(activeAudio!!, oldAudio)
+        updatePlayerData(activeAudio)
+        allMusicFragment!!.updatePlayingStatus(activeAudio, oldAudio)
+        favMusicFragment!!.updatePlayingStatus(activeAudio, oldAudio)
+        recentMusicFragment!!.updatePlayingStatus(activeAudio, oldAudio)
     }
 
     private fun updatePlayerData(audio: Audio) {
@@ -588,8 +610,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
 
         recentMusicFragment!!.updateAudio(audio)
 
-
-        songName.text = audio.title
         songTitle.text = audio.title
         smallSongAartist.text = audio.artist
 
@@ -602,7 +622,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
             smallThumbnail.setImageBitmap(bitmapI)
             songThumbnail.setImageBitmap(bitmap)
         } else {
-            Log.d(TAG, "Audio don't has image :")
             Picasso.with(this).load(R.drawable.music).resize(100, 100).into(smallThumbnail)
             Picasso.with(this).load(R.drawable.music).into(songThumbnail)
         }
@@ -614,33 +633,18 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
         progressBar.progress = 0
         seekBar.max = audio.duration.toInt()
         progressBar.max = audio.duration.toInt()
-        activeAudio = audio
-        Log.d(TAG, "Audio.fav is : ${audio.isFav}")
         if (audio.isFav) {
             favorite_view.setImageResource(R.drawable.ic_fav_filled)
         } else {
             favorite_view.setImageResource(R.drawable.ic_fav_emp)
         }
-//        isFav = audio.isFav
-
-    }
-
-    override fun onPrepared(p0: MediaPlayer?) {
-        playMedia()
-    }
-
-    override fun onCompletion(p0: MediaPlayer?) {
-        if (isRepeat) {
-            playMedia()
-        } else {
-            skipToNext()
-        }
     }
 
 
     override fun onSongClick(audio: Audio, index: Int) {
-        val oldAudio = activeAudio!!
-        audioIndex = index
+        val oldAudio = mediaPlayerService!!.getActiveAudio()
+        mediaPlayerService!!.setActiveAudio(audio)
+        mediaPlayerService!!.setAudioIndex(index)
         updatePlayerData(audio)
         if (bottom_sheet.visibility == View.GONE) {
             viewpager!!.visibility = View.GONE
@@ -650,10 +654,62 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
             mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_EXPANDED
         }
         initMediaPlayer(audio.data)
-        mediaPlayer!!.prepareAsync()
+        mediaPlayerService!!.callPlayerAsync()
+
         allMusicFragment!!.updatePlayingStatus(audio, oldAudio)
         favMusicFragment!!.updatePlayingStatus(audio, oldAudio)
         recentMusicFragment!!.updatePlayingStatus(audio, oldAudio)
+    }
+
+    override fun onAudioChanged(audioIndex: Int, audio: Audio, oldAudioIndex: Int, oldAudio: Audio) {
+        updatePlayerData(audio)
+        handler.removeCallbacks(runnable)
+        handler.post(runnable)
+        play.setBackgroundResource(R.drawable.ic_pause_button)
+        play_m.setBackgroundResource(R.drawable.ic_pause_button_small)
+        lyricsFragment!!.changeSong(mediaPlayerService!!.getActiveAudio())
+        songInfoFragment!!.changeSong(mediaPlayerService!!.getActiveAudio())
+
+        allMusicFragment!!.updatePlayingStatus(audio, oldAudio)
+        favMusicFragment!!.updatePlayingStatus(audio, oldAudio)
+        recentMusicFragment!!.updatePlayingStatus(audio, oldAudio)
+
+    }
+
+    override fun onPlayPause(status: Int) {
+        if (status == 1) {
+            play.setBackgroundResource(R.drawable.ic_pause_button)
+            play_m.setBackgroundResource(R.drawable.ic_pause_button_small)
+        } else {
+            play.setBackgroundResource(R.drawable.ic_play_button)
+            play_m.setBackgroundResource(R.drawable.ic_play_button_small)
+        }
+    }
+
+    override fun onExit() {
+        finish()
+    }
+
+    private fun doMediaTimeSeekChanges() {
+        runnable = object : Runnable {
+            override fun run() {
+                if (mediaPlayerService!!.getCurrentPosition() > -1) {
+
+                    var seconds: Int = ((mediaPlayerService!!.getCurrentPosition() / 1000) % 60)
+                    var minutes: Int = ((mediaPlayerService!!.getCurrentPosition() / 1000) - seconds) / 60
+                    if (minutes >= 60) {
+                        minutes %= 60
+                        var hr: Int = (((mediaPlayerService!!.getCurrentPosition() / 1000) / 60) / 60)
+                        startTime.text = "$hr:$minutes:$seconds"
+                    } else {
+                        startTime.text = "$minutes:$seconds"
+                    }
+                    seekBar.progress = (mediaPlayerService!!.getCurrentPosition())
+                    progressBar.progress = (mediaPlayerService!!.getCurrentPosition())
+                }
+                handler.postDelayed(this, 10)
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -677,19 +733,33 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
             return 0
         }
 
-        override fun onProgressUpdate(vararg values: Int?) {
-            super.onProgressUpdate(*values)
-        }
-
         override fun onPostExecute(result: Long?) {
             if (audioList.size != 0) {
                 setupViewPager(viewpager)
-                setUpBottomSheet()
+                setUpPlayerPager()
                 setUpListeners()
                 tabs.setupWithViewPager(viewpager)
 
-                activeAudio = audioList.elementAt(audioIndex)
-                initMediaPlayer(activeAudio!!.data)
+                mediaPlayerService!!.setSongList(audioList)
+                mediaPlayerService!!.setMediaPlayerControllerListener(this@HomeActivity)
+
+                if (appPreferences!!.getLastAudio() != null) {
+                    val audio = appPreferences!!.getLastAudio()
+                    val index = audioList.indexOf(audio)
+                    mediaPlayerService!!.setActiveAudio(audio!!)
+                    mediaPlayerService!!.setAudioIndex(index)
+                    updatePlayerData(audio)
+                    if (bottom_sheet.visibility == View.GONE) {
+                        bottom_sheet.visibility = View.VISIBLE
+                        miniLayout!!.alpha = 1f
+                        miniLayout.bringToFront()
+                        mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
+                    }
+                    initMediaPlayer(audio.data)
+                    allMusicFragment!!.updatePlayingStatus(audio, audio)
+                    favMusicFragment!!.updatePlayingStatus(audio, audio)
+                    recentMusicFragment!!.updatePlayingStatus(audio, audio)
+                }
             } else {
                 bottom_sheet.visibility = View.GONE
                 noSong_text.visibility = View.VISIBLE
@@ -712,5 +782,4 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayer.OnPre
         anim.duration = 1000
         anim.start()
     }
-
 }
