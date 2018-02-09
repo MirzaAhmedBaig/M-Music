@@ -71,32 +71,6 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
             holder.thumbnail.setImageBitmap(getBitmapFromMemCache(position))
         } else {
             Picasso.with(activity.baseContext).load(R.drawable.music).into(holder.thumbnail)
-            /*AsyncTask.execute({
-                val mediaMetadataRetriever = MediaMetadataRetriever()
-                mediaMetadataRetriever.setDataSource(audio.data)
-                val picData = mediaMetadataRetriever.embeddedPicture
-                val options = BitmapFactory.Options()
-                options.inJustDecodeBounds = true
-                if (picData != null) {
-                    var bitmapImage = BitmapFactory.decodeByteArray(picData, 0, picData.size)
-                    var bitmapI = Bitmap.createScaledBitmap(bitmapImage, 90, 90, true)
-                    activity.runOnUiThread({
-                        holder.thumbnail.setImageBitmap(bitmapI)
-                    })
-
-                    val newBtimap = BitmapMapModel()
-                    newBtimap.bitmap = bitmapI
-                    newBtimap.position = position
-                    addBitmapToMemoryCache(position, bitmapI)
-
-                } else {
-                    activity.runOnUiThread({
-                        Picasso.with(activity.baseContext).load(R.drawable.music).into(holder.thumbnail)
-                    })
-                }
-
-            })*/
-
         }
 
         if (audioList[position].playing) {

@@ -3,7 +3,7 @@
     android:id="@+id/notificationbg"
     android:layout_width="match_parent"
     android:layout_height="128.0dip"
-    android:background="#3c3f41">
+    android:background="@color/colorPrimary">
 
     <ImageView
         android:id="@+id/status_bar_album_art"

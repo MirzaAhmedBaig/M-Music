@@ -22,7 +22,7 @@
         android:maxLines="1"
         android:text="Titles"
         android:textColor="#ffffff"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
     <TextView
@@ -40,7 +40,7 @@
         android:padding="0dp"
         android:text="Artist.........."
         android:textColor="#ffffff"
-        android:textSize="16sp"
+        android:textSize="12sp"
         android:textStyle="bold" />
 
     <FrameLayout

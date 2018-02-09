@@ -5,14 +5,15 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.android.permission.BLUETOOTH" />
 
     <application
         android:name=".realm.MusicApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:launchMode="singleInstance"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/MyMaterialTheme">
         <service android:name=".MediaPlayerClasses.MediaPlayerService" />
@@ -31,6 +32,12 @@
             android:name=".activities.HomeActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait"></activity>
+
+        <receiver android:name=".MediaPlayerClasses.HardButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

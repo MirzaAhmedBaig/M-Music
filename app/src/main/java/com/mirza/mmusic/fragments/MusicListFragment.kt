@@ -8,7 +8,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout.VERTICAL
@@ -54,12 +53,8 @@ class MusicListFragment : Fragment(), ItemClickListener {
             }
 
             recyclerView = view.findViewById(R.id.recyclerview)
+            recyclerView!!.itemAnimator.changeDuration = 0
 
-            if (list!!.size < 1) {
-                view.emptySong_text.visibility = View.VISIBLE
-            } else {
-                view.emptySong_text.visibility = View.GONE
-            }
 
 
             view.recyclerview.layoutManager = LinearLayoutManager(activity)
@@ -71,22 +66,17 @@ class MusicListFragment : Fragment(), ItemClickListener {
             view.recyclerview.addItemDecoration(decoration)
         }
         globalView = view
-        recyclerView!!.setOnTouchListener(object : View.OnTouchListener {
+        /*recyclerView!!.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
                 return list!!.size < 1
             }
 
-        })
+        })*/
         Log.d(TAG, "Frag type :$type")
         return view
     }
 
     override fun onClick(view: View?, index: Int) {
-        /*list!![index].playing = true
-        (0 until list!!.size)
-                .filter { it != index }
-                .forEach { list!![it].playing = false }
-        adapter!!.notifyDataSetChanged()*/
         if (musicPlayerListener != null) {
             musicPlayerListener!!.onSongClick(list!![index], index)
         }
@@ -103,16 +93,14 @@ class MusicListFragment : Fragment(), ItemClickListener {
             list!![index].playing = true
             adapter!!.notifyItemChanged(index)
         }
-        /*if(dataList!!.contains(audio.data)){
-            val index=dataList!!.indexOf(audio.data)
-            list!![index].playing = true
-            (0 until list!!.size)
-                    .filter { it != index }
-                    .forEach { list!![it].playing = false }
-//            adapter!!.notifyDataSetChanged()
+    }
 
+    fun updatePausePlay(audio: Audio, status: Int) {
+        if (dataList!!.contains(audio.data)) {
+            val index = dataList!!.indexOf(audio.data)
+            list!![index].playing = status == 1
             adapter!!.notifyItemChanged(index)
-        }*/
+        }
     }
 
     fun pauseAudio(audio: Audio, isPlaying: Boolean) {
@@ -125,15 +113,10 @@ class MusicListFragment : Fragment(), ItemClickListener {
     }
 
     fun updateAudio(audio: Audio) {
-        if (!dataList!!.contains(audio.data)) {
+        if (dataList != null && !dataList!!.contains(audio.data)) {
             list!!.add(audio)
             dataList!!.add(audio.data!!)
             adapter!!.notifyItemInserted(list!!.size - 1)
-        }
-        if (list!!.size > 0) {
-            view!!.emptySong_text.visibility = View.GONE
-        } else {
-            view!!.emptySong_text.visibility = View.VISIBLE
         }
     }
 
@@ -148,12 +131,6 @@ class MusicListFragment : Fragment(), ItemClickListener {
             list!!.removeAt(index)
             dataList!!.removeAt(index)
             adapter!!.notifyItemRemoved(index)
-        }
-
-        if (list!!.size > 0) {
-            view!!.emptySong_text.visibility = View.GONE
-        } else {
-            view!!.emptySong_text.visibility = View.VISIBLE
         }
     }
 

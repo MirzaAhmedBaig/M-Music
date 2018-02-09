@@ -27,17 +27,8 @@ import com.mirza.mmusic.models.Audio
 import java.io.IOException
 import java.util.ArrayList
 
-*/
-/**
- * Created by MIRZA on 19/10/17.
- *//*
 
 
-
-*/
-/**
- * Created by Valdio Veliu on 16-07-11.
- *//*
 
 class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener, AudioManager.OnAudioFocusChangeListener {
 
@@ -69,10 +60,9 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     private var telephonyManager: TelephonyManager? = null
 
 
-    */
-/**
+*
  * Service lifecycle methods
- *//*
+
 
     override fun onBind(intent: Intent): IBinder? {
         return iBinder
@@ -162,10 +152,9 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
         StorageUtil(applicationContext).clearCachedAudioPlaylist()
     }
 
-    */
-/**
+*
  * Service Binder
- *//*
+
 
     inner class LocalBinder : Binder() {
         // Return this instance of LocalService so clients can call public methods
@@ -174,10 +163,9 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     }
 
 
-    */
-/**
+*
  * MediaPlayer callback methods
- *//*
+
 
     override fun onBufferingUpdate(mp: MediaPlayer, percent: Int) {
         //Invoked indicating buffering status of
@@ -247,10 +235,9 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     }
 
 
-    */
-/**
+*
  * AudioFocus
- *//*
+
 
     private fun requestAudioFocus(): Boolean {
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -268,10 +255,9 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     }
 
 
-    */
-/**
+*
  * MediaPlayer actions
- *//*
+
 
     private fun initMediaPlayer() {
         if (mediaPlayer == null)
@@ -369,10 +355,9 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     }
 
 
-    */
-/**
+*
  * ACTION_AUDIO_BECOMING_NOISY -- change in audio outputs
- *//*
+
 
     private val becomingNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -388,10 +373,9 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
         registerReceiver(becomingNoisyReceiver, intentFilter)
     }
 
-    */
-/**
+*
  * Handle PhoneState changes
- *//*
+
 
     private fun callStateListener() {
         // Get the telephony manager
@@ -423,10 +407,9 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
                 PhoneStateListener.LISTEN_CALL_STATE)
     }
 
-    */
-/**
+*
  * MediaSession and Notification actions
- *//*
+
 
     @Throws(RemoteException::class)
     private fun initMediaSession() {
@@ -505,15 +488,6 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     }
 
     private fun buildNotification(playbackStatus: PlaybackStatus) {
-
-        */
-/**
- * Notification actions -> playbackAction()
- * 0 -> Play
- * 1 -> Pause
- * 2 -> Next track
- * 3 -> Previous track
- *//*
 
 
         var notificationAction = android.R.drawable.ic_media_pause//needs to be initialized
@@ -613,10 +587,9 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     }
 
 
-    */
-/**
+*
  * Play new Audio
- *//*
+
 
     private val playNewAudio = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -660,4 +633,5 @@ class MediaPlayerService : Service(), MediaPlayer.OnCompletionListener, MediaPla
     }
 
 
-}*/
+}
+*/

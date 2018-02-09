@@ -4,8 +4,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.net.Uri
 import android.provider.MediaStore
+import android.view.View
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
@@ -44,4 +47,19 @@ fun getDp(size: Int): Int {
 
 fun isFileExist(path: String): Boolean {
     return File(path).exists()
+}
+
+fun getBitmapFromView(view: View): Bitmap {
+    val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+    val c = Canvas(bitmap)
+    view.layout(view.left, view.top, view.right, view.bottom)
+    view.draw(c)
+    return bitmap
+}
+
+fun getDefaultBitmap(context: Context): Bitmap? {
+    val options = BitmapFactory.Options()
+    options.inJustDecodeBounds = true
+    return BitmapFactory.decodeResource(context.resources,
+            R.drawable.music, options)
 }

@@ -5,8 +5,10 @@
 
     <item>
         <bitmap
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
-            android:src="@drawable/app_icon" />
+            android:src="@mipmap/ic_launcher_foreground" />
 
     </item>
 

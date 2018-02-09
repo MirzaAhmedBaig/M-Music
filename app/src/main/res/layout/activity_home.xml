@@ -4,14 +4,15 @@
     android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/list_back"
-
+    android:background="@drawable/music"
     tools:context=".activities.HomeActivity">
+
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@null"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
 
@@ -20,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:background="?attr/colorPrimary"
+            android:background="#34cccccc"
             android:contentInsetEnd="0dp"
             android:contentInsetLeft="0dp"
             android:contentInsetRight="0dp"
@@ -54,7 +55,7 @@
                     android:text=" Music"
                     android:textAlignment="center"
                     android:textAllCaps="false"
-                    android:textSize="40sp"
+                    android:textSize="35sp"
                     android:textStyle="bold" />
 
                 <android.support.design.widget.TabLayout
@@ -74,11 +75,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <ListView
-        android:id="@+id/song_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"></ListView>
-
     <TextView
         android:id="@+id/noSong_text"
         android:layout_width="match_parent"
@@ -89,7 +85,7 @@
         android:text="No songs found"
         android:textAlignment="center"
         android:textColor="@color/secondary_text"
-        android:textSize="25dp"
+        android:textSize="20sp"
         android:visibility="gone" />
 
     <ProgressBar
@@ -102,20 +98,21 @@
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="60dp"
+        android:background="#34cccccc"
+        android:paddingBottom="70dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <RelativeLayout
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/backgroundMain"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
         <RelativeLayout
             android:id="@+id/miniLayout"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:background="@color/backgroundMain">
+            android:layout_height="70dp">
 
             <ImageView
                 android:id="@+id/smallThumbnail"
@@ -131,9 +128,9 @@
                 android:layout_marginTop="-6.5dp"
                 android:layout_toEndOf="@id/smallThumbnail"
                 android:layout_toRightOf="@id/smallThumbnail"
+                android:backgroundTint="@color/colorPrimary"
                 android:paddingTop="-4dp"
                 android:progress="100"
-                android:theme="@style/MySeekBarTheme"
                 android:visibility="visible" />
 
             <TextView
@@ -153,7 +150,7 @@
                 android:maxLines="1"
                 android:text="Titles"
                 android:textColor="#ffffff"
-                android:textSize="20sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -174,7 +171,7 @@
                 android:padding="0dp"
                 android:text="Artist.........."
                 android:textColor="#ffffff"
-                android:textSize="16sp"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -259,6 +256,10 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@id/seekBar"
                 android:layout_alignParentTop="true"
+                android:layout_marginBottom="90dp"
+                android:layout_marginEnd="50dp"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="90dp"
                 android:scaleType="fitXY" />
 
             <android.support.v4.view.ViewPager
@@ -310,7 +311,7 @@
                 android:text="Song name"
                 android:textAlignment="center"
                 android:textColor="#ffffff"
-                android:textSize="30sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
 
@@ -326,7 +327,7 @@
                 android:layout_marginStart="15dp"
                 android:text="00:00:00"
                 android:textColor="#ffffff"
-                android:textSize="15sp" />
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/endTime"
@@ -340,7 +341,7 @@
                 android:layout_marginRight="14dp"
                 android:text="00:00:00"
                 android:textColor="#ffffff"
-                android:textSize="15sp" />
+                android:textSize="12sp" />
 
             <SeekBar
                 android:id="@+id/seekBar"
@@ -466,5 +467,6 @@
 
 
     </RelativeLayout>
+
 </android.support.design.widget.CoordinatorLayout>
 

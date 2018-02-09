@@ -1,17 +1,25 @@
 package com.mirza.mmusic.MediaPlayerClasses
 
+import android.annotation.TargetApi
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.media.session.MediaSession
+import android.media.session.PlaybackState
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.RemoteViews
 import com.mirza.mmusic.AppPreferences
@@ -26,9 +34,24 @@ import java.io.IOException
  * Created by mirza on 19/01/18.
  */
 class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener {
+        MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener, HardButtonReceiver.HardButtonListener {
+    override fun onPrevButtonPress() {
+        skipToPrevious()
+    }
 
-    private val LOG_TAG: String = MediaPlayerService::class.java.simpleName
+    override fun onNextButtonPress() {
+        skipToNext()
+    }
+
+    override fun onPlayPauseButtonPress() {
+        if (mediaPlayer!!.isPlaying) {
+            pausePlayer()
+        } else {
+            startPlayer()
+        }
+    }
+
+    private val TAG: String = MediaPlayerService::class.java.simpleName
     private var mediaPlayer: MediaPlayer? = null
     private var audioList: ArrayList<Audio>? = null
     private var audioIndex: Int = 0
@@ -46,9 +69,16 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
 
     private var appPreferences: AppPreferences? = null
 
+    private var isAsyncCalled: Boolean = false
+    private var soundLevel: Float = 0f
 
     override fun onCreate() {
         super.onCreate()
+        callStateListener()
+        registerBecomingNoisyReceiver()
+        setHeadphoneReceiver()
+        setHeadphoneReceiver21()
+
         appPreferences = AppPreferences(applicationContext)
         mediaPlayer = MediaPlayer()
         mediaPlayer!!.setWakeMode(applicationContext,
@@ -68,6 +98,13 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
 
     override fun onDestroy() {
         stopForeground(true)
+        removeAudioFocus()
+        //Disable the PhoneStateListener
+        if (phoneStateListener != null) {
+            telephonyManager!!.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
+        }
+        unregisterReceiver(mButtonReceiver)
+        unregisterReceiver(becomingNoisyReceiver)
     }
 
     fun setSongList(audioList: ArrayList<Audio>) {
@@ -77,6 +114,12 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         audioIndex = 0
     }
 
+    fun setSong(audio: Audio, index: Int) {
+        activeAudio = audio
+        songTitle = activeAudio!!.title!!
+        audioIndex = index
+    }
+
     fun songClicked(data: String) {
         oldAudio = activeAudio
         oldAudioIndex = audioIndex
@@ -84,7 +127,13 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     }
 
     fun initMediaPlayer(data: String) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mediaSession!!.isActive = true
+        }
+
         mediaPlayer!!.reset()
+        Log.d(TAG, "Data to init : $data")
         try {
             mediaPlayer!!.setDataSource(data)
         } catch (e: IOException) {
@@ -94,6 +143,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     }
 
     fun skipToNext() {
+        Log.d(TAG, "skipToNext : $audioIndex")
         if (audioList == null)
             return
         oldAudio = activeAudio
@@ -108,6 +158,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         mediaPlayer!!.reset()
         initMediaPlayer(activeAudio!!.data!!)
         mediaPlayer!!.prepareAsync()
+        isAsyncCalled = true
     }
 
     fun skipToPrevious() {
@@ -123,6 +174,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         mediaPlayer!!.reset()
         initMediaPlayer(activeAudio!!.data!!)
         mediaPlayer!!.prepareAsync()
+        isAsyncCalled = true
     }
 
     fun stopMedia() {
@@ -137,30 +189,43 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mediaSession!!.release()
+        }
         mediaPlayer!!.stop()
         mediaPlayer!!.release()
         return false
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        if (intent == null)
+            return START_STICKY
+        if (!requestAudioFocus()) {
+            //Could not gain focus
+            stopSelf()
+        }
+
         /*if (intent!!.action == Constants.ACTION.STARTFOREGROUND_ACTION) {
             showNotification()
             Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show()
 
-        } else */if (intent!!.action == Constants.ACTION.PREV_ACTION) {
+        } else */if (intent.action == Constants.ACTION.PREV_ACTION) {
             skipToPrevious()
-            Log.i(LOG_TAG, "Clicked Previous")
+            Log.i(TAG, "Clicked Previous")
         } else if (intent.action == Constants.ACTION.PLAY_ACTION) {
-            if (mediaPlayer!!.isPlaying)
+            if (mediaPlayer!!.isPlaying) {
                 pausePlayer()
-            else
+            } else {
                 startPlayer()
-            Log.i(LOG_TAG, "Clicked Play")
+            }
+            Log.i(TAG, "Clicked Play")
+
         } else if (intent.action == Constants.ACTION.NEXT_ACTION) {
             skipToNext()
-            Log.i(LOG_TAG, "Clicked Next")
+            Log.i(TAG, "Clicked Next")
         } else if (intent.action == Constants.ACTION.STOPFOREGROUND_ACTION) {
-            Log.i(LOG_TAG, "Received Stop Foreground Intent")
+            Log.i(TAG, "Received Stop Foreground Intent")
             stopForeground(true)
             stopSelf()
             mediaPlayerControllerListener!!.onExit()
@@ -268,6 +333,15 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
                 .setOngoing(true)
                 .setContentTitle("Playing")
                 .setContentText(songTitle)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val style = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Notification.MediaStyle()
+            } else {
+                null
+            }
+            style!!.setMediaSession(mediaSession!!.sessionToken)
+            notificationBuilder.setStyle(style)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             notificationBuilder.setCustomContentView(views)
             notificationBuilder.setCustomBigContentView(bigViews)
@@ -294,6 +368,36 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
             startPlayer()
         } else {
             skipToNext()
+        }
+    }
+
+    override fun onAudioFocusChange(focusState: Int) {
+
+        //Invoked when the audio focus of the system is updated.
+        when (focusState) {
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                // resume playback
+                startPlayer()
+                mediaPlayer!!.setVolume(1.0f, 1.0f)
+            }
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                // Lost focus for an unbounded amount of time: stop playback and release media player
+                if (mediaPlayer!!.isPlaying) {
+                    /* mediaPlayer!!.stop()*/
+                    pausePlayer()
+                }
+                /*mediaPlayer!!.release()
+                mediaPlayer = null*/
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ->
+                // Lost focus for a short time, but we have to stop
+                // playback. We don't release the media player because playback
+                // is likely to resume
+                pausePlayer()
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->
+                // Lost focus for a short time, but it's ok to keep playing
+                // at an attenuated level
+                if (mediaPlayer!!.isPlaying) mediaPlayer!!.setVolume(0.1f, 0.1f)
         }
     }
 
@@ -328,15 +432,22 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     }
 
     fun startPlayer() {
+        Log.d(TAG, "Playing Data : ${activeAudio!!.data}")
         if (!mediaPlayer!!.isPlaying) {
-            mediaPlayer!!.start()
-            updateNotificationView()
-            mediaPlayerControllerListener!!.onPlayPause(1)
+            if (isAsyncCalled) {
+                mediaPlayer!!.start()
+                updateNotificationView()
+                mediaPlayerControllerListener!!.onPlayPause(1)
+            } else {
+                callPlayerAsync()
+                mediaPlayerControllerListener!!.onPlayPause(1)
+            }
         }
     }
 
     fun callPlayerAsync() {
         mediaPlayer!!.prepareAsync()
+        isAsyncCalled = true
     }
 
     fun getActiveAudio(): Audio {
@@ -344,7 +455,9 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     }
 
     fun setAudioIndex(index: Int) {
+        Log.d(TAG, "setAudioIndex1 : $audioIndex")
         audioIndex = index
+        Log.d(TAG, "setAudioIndex2 : $audioIndex")
     }
 
     fun setActiveAudio(audio: Audio) {
@@ -366,5 +479,135 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     fun setMediaPlayerControllerListener(mediaPlayerControllerListener: MediaPlayerControllerListener) {
         this.mediaPlayerControllerListener = mediaPlayerControllerListener
 
+    }
+
+    /**
+     * Handling other apps and telephony events
+     */
+
+    //Handle incoming phone calls
+    private var ongoingCall = false
+    private var phoneStateListener: PhoneStateListener? = null
+    private var telephonyManager: TelephonyManager? = null
+    //AudioFocus
+    private var audioManager: AudioManager? = null
+
+    //Headphone buttons receiver
+    private var mButtonReceiver: HardButtonReceiver? = null
+
+    private var mediaSession: MediaSession? = null
+
+    private fun setHeadphoneReceiver() {
+        mButtonReceiver = HardButtonReceiver(this)
+
+        // Create the intent filter the button receiver will handle
+        val iF = IntentFilter(Intent.ACTION_MEDIA_BUTTON)
+        iF.priority = IntentFilter.SYSTEM_HIGH_PRIORITY + 1
+
+        // register the receiver
+        registerReceiver(mButtonReceiver, iF)
+        Log.v(TAG, "HeadsetExample: The Button Receiver has been registered")
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun setHeadphoneReceiver21() {
+        val callback = object : MediaSession.Callback() {
+            override fun onPlay() {
+                // Handle the play button
+                super.onPlay()
+                Log.d(TAG, "I am here1")
+            }
+
+            override fun onPause() {
+                super.onPause()
+                Log.d(TAG, "I am here1")
+            }
+
+            override fun onSkipToNext() {
+                super.onSkipToNext()
+                Log.d(TAG, "I am here2")
+            }
+
+            override fun onSkipToPrevious() {
+                super.onSkipToPrevious()
+                Log.d(TAG, "I am here3")
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+            mediaSession = MediaSession(this@MediaPlayerService, TAG)
+            mediaSession!!.setFlags(
+                    MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS)
+            mediaSession!!.setCallback(callback)
+
+            val state = PlaybackState.Builder()
+            state.setActions(PlaybackState.ACTION_PLAY_PAUSE)
+            state.setState(PlaybackState.STATE_PLAYING, 0, 1.0f)
+            val ps = state.build()
+            mediaSession!!.setPlaybackState(ps)
+
+
+        }
+    }
+
+    private fun callStateListener() {
+        // Get the telephony manager
+        telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        //Starting listening for PhoneState changes
+        phoneStateListener = object : PhoneStateListener() {
+            override fun onCallStateChanged(state: Int, incomingNumber: String) {
+                when (state) {
+                //if at least one call exists or the phone is ringing
+                //pause the MediaPlayer
+                    TelephonyManager.CALL_STATE_OFFHOOK, TelephonyManager.CALL_STATE_RINGING -> if (mediaPlayer != null) {
+                        pausePlayer()
+                        ongoingCall = true
+                    }
+                    TelephonyManager.CALL_STATE_IDLE ->
+                        // Phone idle. Start playing.
+                        if (mediaPlayer != null) {
+                            if (ongoingCall) {
+                                ongoingCall = false
+                                startPlayer()
+                            }
+                        }
+                }
+            }
+        }
+        // Register the listener with the telephony manager
+        // Listen for changes to the device call state.
+        telephonyManager!!.listen(phoneStateListener,
+                PhoneStateListener.LISTEN_CALL_STATE)
+    }
+
+    private val becomingNoisyReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            Log.d(TAG, "Headphone Action : ${intent.action}")
+            //pause audio on ACTION_AUDIO_BECOMING_NOISY
+            pausePlayer()
+//            buildNotification(PlaybackStatus.PAUSED)
+        }
+    }
+
+    private fun registerBecomingNoisyReceiver() {
+        //register after getting audio focus
+        val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+        registerReceiver(becomingNoisyReceiver, intentFilter)
+    }
+
+    private fun requestAudioFocus(): Boolean {
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val result = audioManager!!.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            //Focus gained
+            return true
+        }
+        //Could not gain focus
+        return false
+    }
+
+    private fun removeAudioFocus(): Boolean {
+        return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == audioManager!!.abandonAudioFocus(this)
     }
 }
