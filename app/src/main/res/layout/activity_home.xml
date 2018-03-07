@@ -4,8 +4,14 @@
     android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/music"
     tools:context=".activities.HomeActivity">
+
+    <ImageView
+        android:id="@+id/app_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/music" />
 
 
     <android.support.design.widget.AppBarLayout
@@ -21,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:background="#34cccccc"
+            android:background="@color/back_transparent"
             android:contentInsetEnd="0dp"
             android:contentInsetLeft="0dp"
             android:contentInsetRight="0dp"
@@ -94,12 +100,136 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
 
+    <LinearLayout
+        android:id="@+id/colo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="#fff"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <View
+            android:id="@+id/v1"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#ff0000" />
+
+        <View
+            android:id="@+id/v2"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#00ff00" />
+
+        <View
+            android:id="@+id/v3"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginBottom="@dimen/dp_5"
+            android:background="#0000ff" />
+
+        <View
+            android:id="@+id/v4"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#ff0000" />
+
+        <View
+            android:id="@+id/v5"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#00ff00" />
+
+        <View
+            android:id="@+id/v6"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginBottom="@dimen/dp_5"
+            android:background="#0000ff" />
+
+        <View
+            android:id="@+id/v7"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#ff0000" />
+
+        <View
+            android:id="@+id/v8"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#00ff00" />
+
+        <View
+            android:id="@+id/v9"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginBottom="@dimen/dp_5"
+            android:background="#0000ff" />
+
+        <View
+            android:id="@+id/v10"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#00ff00" />
+
+        <View
+            android:id="@+id/v11"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#0000ff" />
+
+        <View
+            android:id="@+id/v12"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginBottom="@dimen/dp_5"
+            android:background="#ff0000" />
+
+        <View
+            android:id="@+id/v13"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#00ff00" />
+
+        <View
+            android:id="@+id/v14"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#0000ff" />
+
+        <View
+            android:id="@+id/v15"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginBottom="@dimen/dp_5"
+            android:background="#ff0000" />
+
+        <View
+            android:id="@+id/v16"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#00ff00" />
+
+        <View
+            android:id="@+id/v17"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#0000ff" />
+
+        <View
+            android:id="@+id/v18"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="#ff0000" />
+
+    </LinearLayout>
+
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="60dp"
-        android:background="#34cccccc"
+        android:background="@color/back_transparent"
         android:paddingBottom="70dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
@@ -146,8 +276,12 @@
                 android:layout_toLeftOf="@+id/playConsole"
                 android:layout_toRightOf="@+id/smallThumbnail"
                 android:layout_toStartOf="@+id/playConsole"
+                android:ellipsize="marquee"
                 android:fontFamily="@font/music"
-                android:maxLines="1"
+                android:gravity="center"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:text="Titles"
                 android:textColor="#ffffff"
                 android:textSize="15sp"

@@ -17,10 +17,9 @@ import android.provider.MediaStore
 import android.support.design.widget.BottomSheetBehavior
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.graphics.Palette
 import android.util.Log
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
 import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.Toast
@@ -41,6 +40,7 @@ import com.mirza.mmusic.models.db.RealmFavAudio
 import com.mirza.mmusic.models.db.RealmRecentAudio
 import com.squareup.picasso.Picasso
 import io.realm.Realm
+import jp.wasabeef.blurry.Blurry
 import kotlinx.android.synthetic.main.activity_home.*
 import java.net.URL
 
@@ -87,6 +87,9 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        this.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_home)
 
         tabs.addTab(tabs.newTab().setText("Songs"))
@@ -398,6 +401,24 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
             }
 
         })
+
+        /*tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener{
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                val tabTextView = tabs.getChildAt(1) as TextView
+                tabTextView.setTypeface(tabTextView.typeface, Typeface.NORMAL)
+            }
+
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+            val tabTextView = tabs.getChildAt(1) as TextView
+                tabTextView.setTypeface(tabTextView.typeface, Typeface.BOLD)
+            }
+
+        })*/
+
     }
 
     @SuppressLint("Recycle")
@@ -621,11 +642,12 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
             var bitmapI = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
             smallThumbnail.setImageBitmap(bitmapI)
             songThumbnail.setImageBitmap(bitmap)
-
+            changeThem(bitmap)
             Log.d(TAG, "Location ${audio.data}")
             Log.d(TAG, "B Width : ${bitmap.width} B Height : ${bitmap.height}")
             /*val blurredBitmap = BlurBuilder.blur(this@HomeActivity, bitmap, 0.4f, 20.5f)
             maxLayout.background = BitmapDrawable(resources, blurredBitmap)*/
+            Blurry.with(this).from(bitmap).into(app_background)
         } else {
             Picasso.with(this).load(R.drawable.music).resize(100, 100).into(smallThumbnail)
             Picasso.with(this).load(R.drawable.music).into(songThumbnail)
@@ -652,6 +674,7 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         } else {
             favorite_view.setImageResource(R.drawable.ic_fav_emp)
         }
+        songTitle.isSelected = true
     }
 
 
@@ -837,7 +860,51 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         anim.start()
     }
 
-    private fun chnageThem() {
+    fun createPaletteSync(bitmap: Bitmap): Palette {
+        val palette = Palette.from(bitmap).generate()
+        return palette
+    }
+
+    private fun changeThem(bitmap: Bitmap) {
+        return
+        val vibrantSwatch: Palette.Swatch? = createPaletteSync(bitmap).vibrantSwatch
+        val vibrantSwatchdark: Palette.Swatch? = createPaletteSync(bitmap).darkVibrantSwatch
+        val vibrantSwatchlight: Palette.Swatch? = createPaletteSync(bitmap).lightVibrantSwatch
+        val mutedSwatch: Palette.Swatch? = createPaletteSync(bitmap).mutedSwatch
+        val mutedSwatchlight: Palette.Swatch? = createPaletteSync(bitmap).lightMutedSwatch
+        val mutedSwatchdark: Palette.Swatch? = createPaletteSync(bitmap).darkMutedSwatch
+        if (vibrantSwatch != null) {
+            v1.setBackgroundColor(vibrantSwatch.titleTextColor)
+            v2.setBackgroundColor(vibrantSwatch.bodyTextColor)
+            v3.setBackgroundColor(vibrantSwatch.rgb)
+
+            v4.setBackgroundColor(vibrantSwatchdark!!.titleTextColor)
+            v5.setBackgroundColor(vibrantSwatchdark.bodyTextColor)
+            v6.setBackgroundColor(vibrantSwatchdark.rgb)
+
+            v7.setBackgroundColor(vibrantSwatchlight!!.titleTextColor)
+            v8.setBackgroundColor(vibrantSwatchlight.bodyTextColor)
+            v9.setBackgroundColor(vibrantSwatchlight.rgb)
+
+            /*v10.setBackgroundColor(mutedSwatch!!.titleTextColor)
+            v11.setBackgroundColor(mutedSwatch.bodyTextColor)
+            v12.setBackgroundColor(mutedSwatch.rgb)*/
+
+            /*v13.setBackgroundColor(mutedSwatchlight!!.titleTextColor)
+            v14.setBackgroundColor(mutedSwatchlight.bodyTextColor)
+            v15.setBackgroundColor(mutedSwatchlight.rgb)
+
+            v16.setBackgroundColor(mutedSwatchdark!!.titleTextColor)
+            v17.setBackgroundColor(mutedSwatchdark.bodyTextColor)
+            v18.setBackgroundColor(mutedSwatchdark.rgb)*/
+
+            tabs.setTabTextColors(
+                    vibrantSwatch.rgb,
+                    vibrantSwatch.titleTextColor
+            )
+        }
 
     }
+
+
 }
