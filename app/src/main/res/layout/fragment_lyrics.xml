@@ -18,6 +18,7 @@
         android:textAlignment="center"
         android:textColor="#ffffff"
         android:textSize="20sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="gone" />
 
 </FrameLayout>

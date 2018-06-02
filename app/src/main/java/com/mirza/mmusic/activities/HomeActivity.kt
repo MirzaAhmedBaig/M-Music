@@ -466,12 +466,15 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         val list1 = realm.where(RealmRecentAudio::class.java).findAll()
         recentList = ArrayList()
 
-        for (i in 0 until list1.size) {
-            if (isFileExist(list1[i]!!.data)) {
-                recentList!!.add(isFavAudioReturn(Audio(list1[i]!!.data, list1[i]!!.title, list1[i]!!.album, list1[i]!!.artist, list1[i]!!.endTime, list1[i]!!.duration, false, true)))
+        var iterator = list1.iterator()
+
+        while (iterator.hasNext()) {
+            val item = iterator.next()
+            if (isFileExist(item!!.data)) {
+                recentList!!.add(isFavAudioReturn(Audio(item.data, item.title, item.album, item.artist, item.endTime, item.duration, false, true)))
             } else {
                 realm.beginTransaction()
-                list1[i]!!.deleteFromRealm()
+                item.deleteFromRealm()
                 realm.commitTransaction()
             }
         }
@@ -481,12 +484,14 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         val realm = Realm.getDefaultInstance()
         val list2 = realm.where(RealmFavAudio::class.java).findAll()
         favList = ArrayList()
-        for (i in 0 until list2.size) {
-            if (isFileExist(list2[i]!!.data)) {
-                favList!!.add(Audio(list2[i]!!.data, list2[i]!!.title, list2[i]!!.album, list2[i]!!.artist, list2[i]!!.endTime, list2[i]!!.duration, false, true))
+        val iterator = list2.iterator()
+        while (iterator.hasNext()) {
+            val item = iterator.next()
+            if (isFileExist(item.data)) {
+                favList!!.add(Audio(item.data, item.title, item.album, item.artist, item.endTime, item.duration, false, true))
             } else {
                 realm.beginTransaction()
-                list2[i]!!.deleteFromRealm()
+                item.deleteFromRealm()
                 realm.commitTransaction()
             }
         }
@@ -632,6 +637,8 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         recentMusicFragment!!.updateAudio(audio)
 
         songTitle.text = audio.title
+        songName.text = audio.title
+        songName.isSelected = true
         smallSongAartist.text = audio.artist
 
         val mediaMetadataRetriever = MediaMetadataRetriever()
@@ -652,9 +659,15 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
             Picasso.with(this).load(R.drawable.music).resize(100, 100).into(smallThumbnail)
             Picasso.with(this).load(R.drawable.music).into(songThumbnail)
 
-            val blurredBitmap = BlurBuilder.blur(this@HomeActivity, BitmapFactory.decodeResource(resources,
-                    R.drawable.music), 0.4f, 20.5f)
-            maxLayout.background = BitmapDrawable(resources, blurredBitmap)
+            AsyncTask.execute({
+                val blurredBitmap = BlurBuilder.blur(this@HomeActivity, BitmapFactory.decodeResource(resources,
+                        R.drawable.music), 0.4f, 1f)
+                runOnUiThread {
+                    maxLayout.background = BitmapDrawable(resources, blurredBitmap)
+                }
+
+            })
+
 
         }
 
@@ -797,8 +810,13 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
                         mediaPlayerService!!.setMediaPlayerControllerListener(this@HomeActivity)
 
                         if (appPreferences!!.getLastAudio() != null) {
-                            val audio = appPreferences!!.getLastAudio()
-                            val index = dataList!!.indexOf(audio!!.data)
+                            var audio = appPreferences!!.getLastAudio()
+                            var index = dataList!!.indexOf(audio!!.data)
+
+                            if (!isFileExist(audio.data!!)) {
+                                index = 0
+                                audio = audioList[index]
+                            }
 
                             mediaPlayerService!!.setActiveAudio(audio!!)
                             mediaPlayerService!!.setAudioIndex(index)
