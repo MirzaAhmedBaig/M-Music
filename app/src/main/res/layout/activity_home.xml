@@ -224,13 +224,12 @@
 
     </LinearLayout>
 
+
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="60dp"
         android:background="@color/back_transparent"
-        android:paddingBottom="70dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <RelativeLayout
@@ -245,6 +244,12 @@
             android:layout_height="70dp">
 
             <ImageView
+                android:id="@+id/back_min"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+
+            <ImageView
                 android:id="@+id/smallThumbnail"
                 android:layout_width="70dp"
                 android:layout_height="70dp" />
@@ -257,7 +262,6 @@
                 android:layout_marginBottom="-4dp"
                 android:layout_marginTop="-6.5dp"
                 android:layout_toEndOf="@id/smallThumbnail"
-                android:layout_toRightOf="@id/smallThumbnail"
                 android:backgroundTint="@color/colorPrimary"
                 android:paddingTop="-4dp"
                 android:progress="100"

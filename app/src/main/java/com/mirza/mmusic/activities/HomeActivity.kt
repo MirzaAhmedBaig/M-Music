@@ -10,7 +10,9 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.Color
+import android.graphics.LightingColorFilter
+import android.graphics.drawable.GradientDrawable
 import android.media.MediaMetadataRetriever
 import android.os.*
 import android.provider.MediaStore
@@ -28,7 +30,6 @@ import com.mirza.mmusic.MediaPlayerClasses.MediaPlayerService
 import com.mirza.mmusic.R
 import com.mirza.mmusic.adapter.PlayerPagerAdapter
 import com.mirza.mmusic.adapter.ViewPagerAdapter
-import com.mirza.mmusic.customs.BlurBuilder
 import com.mirza.mmusic.fragments.LyricsFragment
 import com.mirza.mmusic.fragments.MusicListFragment
 import com.mirza.mmusic.fragments.SongInfoFragment
@@ -39,6 +40,7 @@ import com.mirza.mmusic.models.Audio
 import com.mirza.mmusic.models.db.RealmFavAudio
 import com.mirza.mmusic.models.db.RealmRecentAudio
 import com.squareup.picasso.Picasso
+import extensions.manipulateColor
 import io.realm.Realm
 import jp.wasabeef.blurry.Blurry
 import kotlinx.android.synthetic.main.activity_home.*
@@ -457,6 +459,10 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
                 audioList.add(newAudio)
                 dataList!!.add(data)
             }
+            if (audioList.size > 0) {
+                audioList.add(audioList.last())
+                dataList!!.add(dataList!!.last())
+            }
         }
         cursor!!.close()
     }
@@ -648,13 +654,17 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
             /*val blurredBitmap = BlurBuilder.blur(this@HomeActivity, bitmap, 0.4f, 20.5f)
             maxLayout.background = BitmapDrawable(resources, blurredBitmap)*/
             Blurry.with(this).from(bitmap).into(app_background)
+            Blurry.with(this).from(bitmap).into(back_min)
         } else {
             Picasso.with(this).load(R.drawable.music).resize(100, 100).into(smallThumbnail)
             Picasso.with(this).load(R.drawable.music).into(songThumbnail)
-
-            val blurredBitmap = BlurBuilder.blur(this@HomeActivity, BitmapFactory.decodeResource(resources,
-                    R.drawable.music), 0.4f, 20.5f)
-            maxLayout.background = BitmapDrawable(resources, blurredBitmap)
+            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.music)
+            Blurry.with(this).from(bitmap).into(app_background)
+            Blurry.with(this).from(bitmap).into(back_min)
+            changeThem(bitmap)
+//            val blurredBitmap = BlurBuilder.blur(this@HomeActivity, BitmapFactory.decodeResource(resources,
+//                    R.drawable.music), 0.4f, 20.5f)
+//            maxLayout.background = BitmapDrawable(resources, blurredBitmap)
 
         }
 
@@ -866,42 +876,26 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
     }
 
     private fun changeThem(bitmap: Bitmap) {
-        return
+//        return
         val vibrantSwatch: Palette.Swatch? = createPaletteSync(bitmap).vibrantSwatch
-        val vibrantSwatchdark: Palette.Swatch? = createPaletteSync(bitmap).darkVibrantSwatch
-        val vibrantSwatchlight: Palette.Swatch? = createPaletteSync(bitmap).lightVibrantSwatch
-        val mutedSwatch: Palette.Swatch? = createPaletteSync(bitmap).mutedSwatch
-        val mutedSwatchlight: Palette.Swatch? = createPaletteSync(bitmap).lightMutedSwatch
-        val mutedSwatchdark: Palette.Swatch? = createPaletteSync(bitmap).darkMutedSwatch
         if (vibrantSwatch != null) {
-            v1.setBackgroundColor(vibrantSwatch.titleTextColor)
+            /*v1.setBackgroundColor(vibrantSwatch.titleTextColor)
             v2.setBackgroundColor(vibrantSwatch.bodyTextColor)
-            v3.setBackgroundColor(vibrantSwatch.rgb)
-
-            v4.setBackgroundColor(vibrantSwatchdark!!.titleTextColor)
-            v5.setBackgroundColor(vibrantSwatchdark.bodyTextColor)
-            v6.setBackgroundColor(vibrantSwatchdark.rgb)
-
-            v7.setBackgroundColor(vibrantSwatchlight!!.titleTextColor)
-            v8.setBackgroundColor(vibrantSwatchlight.bodyTextColor)
-            v9.setBackgroundColor(vibrantSwatchlight.rgb)
-
-            /*v10.setBackgroundColor(mutedSwatch!!.titleTextColor)
-            v11.setBackgroundColor(mutedSwatch.bodyTextColor)
-            v12.setBackgroundColor(mutedSwatch.rgb)*/
-
-            /*v13.setBackgroundColor(mutedSwatchlight!!.titleTextColor)
-            v14.setBackgroundColor(mutedSwatchlight.bodyTextColor)
-            v15.setBackgroundColor(mutedSwatchlight.rgb)
-
-            v16.setBackgroundColor(mutedSwatchdark!!.titleTextColor)
-            v17.setBackgroundColor(mutedSwatchdark.bodyTextColor)
-            v18.setBackgroundColor(mutedSwatchdark.rgb)*/
+            v3.setBackgroundColor(vibrantSwatch.rgb)*/
 
             tabs.setTabTextColors(
                     vibrantSwatch.rgb,
-                    vibrantSwatch.titleTextColor
+                    vibrantSwatch.rgb
             )
+//            toolbar_title.setTextColor(vibrantSwatch.rgb)
+            tabs.setSelectedTabIndicatorColor(vibrantSwatch.rgb)
+            val gd = GradientDrawable(
+                    GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(manipulateColor(vibrantSwatch.rgb, 0.5f), vibrantSwatch.rgb))
+            gd.cornerRadius = 0f
+//            progressBar.progressDrawable=gd
+            progressBar.progressDrawable.colorFilter = LightingColorFilter(Color.parseColor("#000000"), vibrantSwatch.rgb)
+            seekBar.progressDrawable.colorFilter = LightingColorFilter(Color.parseColor("#000000"), vibrantSwatch.rgb)
+            seekBar.thumb.colorFilter = LightingColorFilter(Color.parseColor("#000000"), vibrantSwatch.rgb)
         }
 
     }

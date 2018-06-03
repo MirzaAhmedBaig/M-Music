@@ -22,6 +22,7 @@ import com.squareup.picasso.Picasso
 /**
  * Created by MIRZA on 14/11/17.
  */
+
 class MusicListAdapter(private val activity: Activity, private val type: Int, private val audioList: List<Audio>, val itemClickListener: ItemClickListener) : RecyclerView.Adapter<MusicListAdapter.MyViewHolder>() {
 
     private val TAG: String = MusicListAdapter::class.java.simpleName
@@ -46,6 +47,7 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
                 itemClickListener.onClick(view, adapterPosition)
         }
 
+        var root_view: View = view.findViewById(R.id.root_view)
         var title: TextView = view.findViewById(R.id.title)
         var artist: TextView = view.findViewById(R.id.artist)
         var songTime: TextView = view.findViewById(R.id.songTime)
@@ -61,6 +63,11 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        /*if(position==audioList.lastIndex){
+            holder.root_view.visibility=View.INVISIBLE
+            return
+        }*/
+
         val audio = audioList[position]
         Log.d(TAG, "Position is : $position")
         holder.title.text = audio.title
@@ -84,7 +91,7 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
         return audioList.size
     }
 
-    fun addBitmapToMemoryCache(index: Int, bitmap: Bitmap?) {
+    private fun addBitmapToMemoryCache(index: Int, bitmap: Bitmap?) {
         if (getBitmapFromMemCache(index) == null) {
             bitmapCache.put(index, bitmap)
         }
@@ -103,8 +110,8 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
                 val options = BitmapFactory.Options()
                 options.inJustDecodeBounds = true
                 if (picData != null) {
-                    var bitmapImage = BitmapFactory.decodeByteArray(picData, 0, picData.size)
-                    var bitmapI = Bitmap.createScaledBitmap(bitmapImage, 90, 90, true)
+                    val bitmapImage = BitmapFactory.decodeByteArray(picData, 0, picData.size)
+                    val bitmapI = Bitmap.createScaledBitmap(bitmapImage, 90, 90, true)
 
                     addBitmapToMemoryCache(i, bitmapI)
                     activity.runOnUiThread({

@@ -19,6 +19,7 @@ class SongInfoFragment : Fragment() {
         if (arguments != null) {
             val audio = arguments!!.getParcelable<Audio>("data")
             view.songName.text = audio.title
+            view.songName.isSelected = true
         }
         return view
     }

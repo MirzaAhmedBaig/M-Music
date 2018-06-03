@@ -58,6 +58,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     private var oldAudioIndex: Int = 0
     private val musicBind = MusicBinder()
     private var isRepeat: Boolean = false
+    private var isPlaying: Boolean = false
     private var activeAudio: Audio? = null
     private var oldAudio: Audio? = null
     private var songTitle: String = ""
@@ -148,7 +149,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
             return
         oldAudio = activeAudio
         oldAudioIndex = audioIndex
-        if (audioIndex == audioList!!.size - 1) {
+        if (audioIndex == audioList!!.size - 2) {
             audioIndex = 0
             activeAudio = audioList!![audioIndex]
         } else {
@@ -165,7 +166,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         oldAudio = activeAudio
         oldAudioIndex = audioIndex
         if (audioIndex == 0) {
-            audioIndex = audioList!!.size - 1
+            audioIndex = audioList!!.size - 2
             activeAudio = audioList!![audioIndex]
         } else {
             activeAudio = audioList!![--audioIndex]
@@ -377,27 +378,36 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         when (focusState) {
             AudioManager.AUDIOFOCUS_GAIN -> {
                 // resume playback
-                startPlayer()
-                mediaPlayer!!.setVolume(1.0f, 1.0f)
+                if (isPlaying) {
+                    startPlayer()
+                    mediaPlayer!!.setVolume(1.0f, 1.0f)
+                    isPlaying = false
+                }
             }
             AudioManager.AUDIOFOCUS_LOSS -> {
                 // Lost focus for an unbounded amount of time: stop playback and release media player
                 if (mediaPlayer!!.isPlaying) {
                     /* mediaPlayer!!.stop()*/
                     pausePlayer()
+                    isPlaying = true
                 }
                 /*mediaPlayer!!.release()
                 mediaPlayer = null*/
             }
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ->
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                 // Lost focus for a short time, but we have to stop
                 // playback. We don't release the media player because playback
                 // is likely to resume
-                pausePlayer()
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->
+                if (mediaPlayer!!.isPlaying) {
+                    isPlaying = true
+                    pausePlayer()
+                }
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 // Lost focus for a short time, but it's ok to keep playing
                 // at an attenuated level
                 if (mediaPlayer!!.isPlaying) mediaPlayer!!.setVolume(0.1f, 0.1f)
+            }
         }
     }
 

@@ -6,12 +6,17 @@
 
     <TextView
         android:id="@+id/songName"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center|top"
+        android:layout_marginEnd="@dimen/dp_30"
+        android:layout_marginStart="@dimen/dp_30"
         android:layout_marginTop="30dp"
         android:ellipsize="marquee"
         android:fontFamily="@font/music"
+        android:gravity="center"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
         android:singleLine="true"
         android:text="Song name"
         android:textAlignment="center"
