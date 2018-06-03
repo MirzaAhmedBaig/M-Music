@@ -383,9 +383,9 @@
                 android:id="@+id/down_arrow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginStart="@dimen/dp_20"
+                android:layout_marginTop="@dimen/dp_20"
                 android:background="@null"
-                android:backgroundTint="@null"
                 android:src="@drawable/ic_down_arrow" />
 
             <ImageView
@@ -439,19 +439,24 @@
 
 
             <TextView
+                android:layout_below="@id/down_arrow"
                 android:id="@+id/songName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="30dp"
                 android:fontFamily="@font/music"
                 android:gravity="center"
                 android:text="Song name"
+                android:layout_marginEnd="@dimen/dp_20"
+                android:layout_marginStart="@dimen/dp_20"
+                android:layout_marginTop="@dimen/dp_5"
+                android:ellipsize="marquee"
                 android:textAlignment="center"
                 android:textColor="#ffffff"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:visibility="gone" />
+                android:singleLine="true"
+                android:visibility="visible" />
 
             <TextView
                 android:id="@+id/startTime"
