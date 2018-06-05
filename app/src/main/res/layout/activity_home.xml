@@ -10,6 +10,7 @@
         android:id="@+id/app_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:contentDescription="@string/image"
         android:scaleType="centerCrop"
         android:src="@drawable/music" />
 
@@ -19,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
+        app:elevation="0dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
 
@@ -28,10 +30,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:background="@color/back_transparent"
-            android:contentInsetEnd="0dp"
-            android:contentInsetLeft="0dp"
-            android:contentInsetRight="0dp"
-            android:contentInsetStart="0dp"
             app:contentInsetEnd="0dp"
             app:contentInsetLeft="0dp"
             app:contentInsetRight="0dp"
@@ -51,17 +49,15 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="start"
                     android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="20dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="20dp"
-                    android:drawableLeft="@drawable/ic_letter_m"
                     android:drawableStart="@drawable/ic_letter_m"
-                    android:fontFamily="@font/music"
-                    android:letterSpacing="0.1"
-                    android:text=" Music"
+                    android:drawablePadding="@dimen/dp_10"
+                    android:fontFamily="@font/avenir_thin"
+                    android:text="@string/music"
                     android:textAlignment="center"
                     android:textAllCaps="false"
-                    android:textSize="35sp"
+                    android:textSize="30sp"
                     android:textStyle="bold" />
 
                 <android.support.design.widget.TabLayout
@@ -81,6 +77,37 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <!--<LinearLayout-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="end"-->
+    <!--android:orientation="vertical">-->
+    <!--<View-->
+    <!--android:id="@+id/view1"-->
+    <!--android:layout_width="50dp"-->
+    <!--android:layout_height="50dp"/>-->
+    <!--<View-->
+    <!--android:id="@+id/view2"-->
+    <!--android:layout_width="50dp"-->
+    <!--android:layout_height="50dp"/>-->
+    <!--<View-->
+    <!--android:id="@+id/view3"-->
+    <!--android:layout_width="50dp"-->
+    <!--android:layout_height="50dp"/>-->
+    <!--<View-->
+    <!--android:id="@+id/view4"-->
+    <!--android:layout_width="50dp"-->
+    <!--android:layout_height="50dp"/>-->
+    <!--<View-->
+    <!--android:id="@+id/view5"-->
+    <!--android:layout_width="50dp"-->
+    <!--android:layout_height="50dp"/>-->
+    <!--<View-->
+    <!--android:id="@+id/view6"-->
+    <!--android:layout_width="50dp"-->
+    <!--android:layout_height="50dp"/>-->
+    <!--</LinearLayout>-->
+
     <TextView
         android:id="@+id/noSong_text"
         android:layout_width="match_parent"
@@ -88,7 +115,7 @@
         android:layout_gravity="center"
         android:fontFamily="@font/music"
         android:gravity="center"
-        android:text="No songs found"
+        android:text="@string/no_songs_found"
         android:textAlignment="center"
         android:textColor="@color/secondary_text"
         android:textSize="20sp"
@@ -99,131 +126,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
-
-    <LinearLayout
-        android:id="@+id/colo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:background="#fff"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <View
-            android:id="@+id/v1"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#ff0000" />
-
-        <View
-            android:id="@+id/v2"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#00ff00" />
-
-        <View
-            android:id="@+id/v3"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginBottom="@dimen/dp_5"
-            android:background="#0000ff" />
-
-        <View
-            android:id="@+id/v4"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#ff0000" />
-
-        <View
-            android:id="@+id/v5"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#00ff00" />
-
-        <View
-            android:id="@+id/v6"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginBottom="@dimen/dp_5"
-            android:background="#0000ff" />
-
-        <View
-            android:id="@+id/v7"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#ff0000" />
-
-        <View
-            android:id="@+id/v8"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#00ff00" />
-
-        <View
-            android:id="@+id/v9"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginBottom="@dimen/dp_5"
-            android:background="#0000ff" />
-
-        <View
-            android:id="@+id/v10"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#00ff00" />
-
-        <View
-            android:id="@+id/v11"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#0000ff" />
-
-        <View
-            android:id="@+id/v12"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginBottom="@dimen/dp_5"
-            android:background="#ff0000" />
-
-        <View
-            android:id="@+id/v13"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#00ff00" />
-
-        <View
-            android:id="@+id/v14"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#0000ff" />
-
-        <View
-            android:id="@+id/v15"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginBottom="@dimen/dp_5"
-            android:background="#ff0000" />
-
-        <View
-            android:id="@+id/v16"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#00ff00" />
-
-        <View
-            android:id="@+id/v17"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#0000ff" />
-
-        <View
-            android:id="@+id/v18"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:background="#ff0000" />
-
-    </LinearLayout>
-
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
@@ -247,12 +149,14 @@
                 android:id="@+id/back_min"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:contentDescription="@string/image"
                 android:scaleType="centerCrop" />
 
             <ImageView
                 android:id="@+id/smallThumbnail"
                 android:layout_width="70dp"
-                android:layout_height="70dp" />
+                android:layout_height="70dp"
+                android:contentDescription="@string/image" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -272,13 +176,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="5dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_toEndOf="@+id/smallThumbnail"
-                android:layout_toLeftOf="@+id/playConsole"
-                android:layout_toRightOf="@+id/smallThumbnail"
                 android:layout_toStartOf="@+id/playConsole"
                 android:ellipsize="marquee"
                 android:fontFamily="@font/music"
@@ -286,7 +186,7 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
-                android:text="Titles"
+                android:text="@string/titles"
                 android:textColor="#ffffff"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -297,17 +197,13 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/songTitle"
                 android:layout_marginEnd="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="5dp"
                 android:layout_marginStart="10dp"
                 android:layout_toEndOf="@+id/smallThumbnail"
-                android:layout_toLeftOf="@+id/playConsole"
-                android:layout_toRightOf="@+id/smallThumbnail"
                 android:layout_toStartOf="@+id/playConsole"
                 android:fontFamily="@font/music"
                 android:maxLines="1"
                 android:padding="0dp"
-                android:text="Artist.........."
+                android:text="@string/artist"
                 android:textColor="#ffffff"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -317,10 +213,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="20dp"
-                android:layout_marginRight="20dp">
+                android:layout_marginEnd="20dp">
 
                 <FrameLayout
                     android:id="@+id/previous_view_m"
@@ -334,7 +228,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:background="@drawable/ic_back_small" />
+                        android:background="@drawable/ic_back_small"
+                        android:contentDescription="@string/imagebutton" />
                 </FrameLayout>
 
                 <FrameLayout
@@ -351,7 +246,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:background="@drawable/ic_play_button_small" />
+                        android:background="@drawable/ic_play_button_small"
+                        android:contentDescription="@string/imagebutton" />
                 </FrameLayout>
 
                 <FrameLayout
@@ -366,7 +262,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:background="@drawable/ic_next_small" />
+                        android:background="@drawable/ic_next_small"
+                        android:contentDescription="@string/imagebutton" />
                 </FrameLayout>
             </LinearLayout>
 
@@ -386,6 +283,7 @@
                 android:layout_marginStart="@dimen/dp_20"
                 android:layout_marginTop="@dimen/dp_20"
                 android:background="@null"
+                android:contentDescription="@string/imagebutton"
                 android:src="@drawable/ic_down_arrow" />
 
             <ImageView
@@ -398,6 +296,7 @@
                 android:layout_marginEnd="50dp"
                 android:layout_marginStart="50dp"
                 android:layout_marginTop="90dp"
+                android:contentDescription="@string/image"
                 android:scaleType="fitXY" />
 
             <android.support.v4.view.ViewPager
@@ -422,6 +321,7 @@
                     android:layout_width="@dimen/dp_5"
                     android:layout_height="@dimen/dp_5"
                     android:background="@drawable/selected_dot"
+                    android:contentDescription="@string/image"
                     android:scaleX="2"
                     android:scaleY="2" />
 
@@ -432,6 +332,7 @@
                     android:layout_marginEnd="@dimen/dp_10"
                     android:layout_marginStart="@dimen/dp_10"
                     android:background="@drawable/selected_dot"
+                    android:contentDescription="@string/image"
                     android:scaleX="1"
                     android:scaleY="1" />
 
@@ -439,36 +340,36 @@
 
 
             <TextView
-                android:layout_below="@id/down_arrow"
                 android:id="@+id/songName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/down_arrow"
                 android:layout_centerHorizontal="true"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="5dp"
+                android:ellipsize="marquee"
                 android:fontFamily="@font/music"
                 android:gravity="center"
-                android:text="Song name"
-                android:layout_marginEnd="@dimen/dp_20"
-                android:layout_marginStart="@dimen/dp_20"
-                android:layout_marginTop="@dimen/dp_5"
-                android:ellipsize="marquee"
-                android:textAlignment="center"
-                android:textColor="#ffffff"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
                 android:singleLine="true"
-                android:visibility="visible" />
+                android:text="@string/song_name"
+                android:textColor="#ffffff"
+                android:textSize="18sp"
+                android:textStyle="bold"
+
+                />
 
             <TextView
                 android:id="@+id/startTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/seekBar"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_marginBottom="5dp"
-                android:layout_marginLeft="15dp"
                 android:layout_marginStart="15dp"
-                android:text="00:00:00"
+                android:text="@string/_00_00_00"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -478,11 +379,9 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/seekBar"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_marginBottom="5dp"
                 android:layout_marginEnd="15dp"
-                android:layout_marginRight="14dp"
-                android:text="00:00:00"
+                android:text="@string/_00_00_00"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -523,7 +422,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="@drawable/ic_back" />
+                            android:background="@drawable/ic_back"
+                            android:contentDescription="@string/imagebutton" />
                     </FrameLayout>
 
                     <FrameLayout
@@ -540,7 +440,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="@drawable/ic_play_button" />
+                            android:background="@drawable/ic_play_button"
+                            android:contentDescription="@string/imagebutton" />
                     </FrameLayout>
 
                     <FrameLayout
@@ -555,7 +456,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="@drawable/ic_next" />
+                            android:background="@drawable/ic_next"
+                            android:contentDescription="@string/imagebutton" />
                     </FrameLayout>
                 </LinearLayout>
 
@@ -576,6 +478,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:background="@null"
+                        android:contentDescription="@string/imagebutton"
                         android:src="@drawable/ic_fav_emp" />
 
                     <ImageButton
@@ -584,6 +487,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:background="@null"
+                        android:contentDescription="@string/imagebutton"
                         android:src="@drawable/ic_repeat_disabled" />
 
                     <ImageButton
@@ -592,6 +496,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:background="@null"
+                        android:contentDescription="@string/imagebutton"
                         android:src="@drawable/ic_song_playlist" />
 
                     <ImageButton
@@ -600,6 +505,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:background="@null"
+                        android:contentDescription="@string/imagebutton"
                         android:src="@drawable/ic_lyrics" />
                 </LinearLayout>
 
@@ -612,4 +518,3 @@
     </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>
-

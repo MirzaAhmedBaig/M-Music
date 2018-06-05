@@ -8,10 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.LightingColorFilter
+import android.graphics.*
 import android.graphics.drawable.GradientDrawable
 import android.media.MediaMetadataRetriever
 import android.os.*
@@ -83,9 +80,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
 
     private var appPreferences: AppPreferences? = null
     private var musicConnection: ServiceConnection? = null
-
-    private var defaultBack: Bitmap? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -220,14 +214,16 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
             override fun onGlobalLayout() {
                 val params = miniLayout!!.layoutParams as RelativeLayout.LayoutParams
                 mBottomSheetBehavior!!.peekHeight = params.height
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    miniLayout!!.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                } else {
-                    miniLayout!!.viewTreeObserver.removeGlobalOnLayoutListener(this)
-                }
+                miniLayout!!.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
             }
         }
         )
+
+        miniLayout.setOnClickListener {
+            if (mBottomSheetBehavior!!.state != BottomSheetBehavior.STATE_EXPANDED)
+                mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_EXPANDED
+        }
     }
 
     private fun setUpPlayerPager(audio: Audio?) {
@@ -442,14 +438,14 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
                 val title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
                 val album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))
                 val artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST))
-                var time = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
+                val time = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
 
                 var endTime: String
-                var seconds: Int = ((java.lang.Long.parseLong(time) / 1000L) % 60).toInt()
+                val seconds: Int = ((java.lang.Long.parseLong(time) / 1000L) % 60).toInt()
                 var minutes: Long = ((java.lang.Long.parseLong(time) / 1000L) - seconds) / 60L
                 if (minutes >= 60) {
                     minutes %= 60
-                    var hr: Int = (((java.lang.Long.parseLong(time) / 1000L) / 60) / 60).toInt()
+                    val hr: Int = (((java.lang.Long.parseLong(time) / 1000L) / 60) / 60).toInt()
                     endTime = "$hr:$minutes:$seconds"
                 } else {
                     endTime = "$minutes:$seconds"
@@ -472,7 +468,7 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         val list1 = realm.where(RealmRecentAudio::class.java).findAll()
         recentList = ArrayList()
 
-        var iterator = list1.iterator()
+        val iterator = list1.iterator()
 
         while (iterator.hasNext()) {
             val item = iterator.next()
@@ -583,20 +579,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         }
     }
 
-    private fun resumeMedia() {
-        val activeAudio = mediaPlayerService!!.getActiveAudio()
-        if (!mediaPlayerService!!.isPlaying()) {
-            mediaPlayerService!!.seekTo(resumePosition)
-            mediaPlayerService!!.startPlayer()
-            play.setBackgroundResource(R.drawable.ic_pause_button)
-            play_m.setBackgroundResource(R.drawable.ic_pause_button_small)
-
-            allMusicFragment!!.pauseAudio(activeAudio, true)
-            favMusicFragment!!.pauseAudio(activeAudio, true)
-            recentMusicFragment!!.pauseAudio(activeAudio, true)
-        }
-    }
-
     private fun skipToNext() {
 
         val oldAudio = mediaPlayerService!!.getActiveAudio()
@@ -644,7 +626,6 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
 
         songTitle.text = audio.title
         songName.text = audio.title
-        songName.isSelected = true
         smallSongAartist.text = audio.artist
 
         val mediaMetadataRetriever = MediaMetadataRetriever()
@@ -652,7 +633,7 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         val data = mediaMetadataRetriever.embeddedPicture
         if (data != null) {
             val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
-            var bitmapI = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
+            val bitmapI = Bitmap.createScaledBitmap(bitmap, 100, 100, true)
             smallThumbnail.setImageBitmap(bitmapI)
             songThumbnail.setImageBitmap(bitmap)
             changeThem(bitmap)
@@ -669,14 +650,7 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
             Blurry.with(this).from(bitmap).into(app_background)
             Blurry.with(this).from(bitmap).into(back_min)
             changeThem(bitmap)
-//            val blurredBitmap = BlurBuilder.blur(this@HomeActivity, BitmapFactory.decodeResource(resources,
-//                    R.drawable.music), 0.4f, 20.5f)
-//            maxLayout.background = BitmapDrawable(resources, blurredBitmap)
-
         }
-
-
-
 
 
         startTime.text = "00:00"
@@ -691,7 +665,12 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         } else {
             favorite_view.setImageResource(R.drawable.ic_fav_emp)
         }
+        songName.isSelected = true
         songTitle.isSelected = true
+
+        if (music_load_progress.visibility == View.VISIBLE) {
+            music_load_progress.visibility = View.GONE
+        }
     }
 
 
@@ -728,6 +707,7 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         favMusicFragment!!.updatePlayingStatus(audio, oldAudio)
         recentMusicFragment!!.updatePlayingStatus(audio, oldAudio)
 
+
     }
 
     override fun onPlayPause(status: Int) {
@@ -756,11 +736,12 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
                 if (mediaPlayerService != null) {
                     if (mediaPlayerService!!.getCurrentPosition() > -1) {
 
-                        var seconds: Int = ((mediaPlayerService!!.getCurrentPosition() / 1000) % 60)
+                        val seconds: Int = ((mediaPlayerService!!.getCurrentPosition() / 1000) % 60)
                         var minutes: Int = ((mediaPlayerService!!.getCurrentPosition() / 1000) - seconds) / 60
                         if (minutes >= 60) {
                             minutes %= 60
-                            var hr: Int = (((mediaPlayerService!!.getCurrentPosition() / 1000) / 60) / 60)
+
+                            val hr: Int = (((mediaPlayerService!!.getCurrentPosition() / 1000) / 60) / 60)
                             startTime.text = "$hr:$minutes:$seconds"
                         } else {
                             startTime.text = "$minutes:$seconds"
@@ -805,6 +786,7 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
                     musicBound = true
 
                     if (audioList.size != 0) {
+                        Log.d(TAG, "#Time1 : ${System.currentTimeMillis() / 1000L}")
                         setupViewPager(viewpager)
                         setUpPlayerPager(appPreferences!!.getLastAudio())
                         setUpListeners()
@@ -812,6 +794,7 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
                         Log.d(TAG, "Bind Service2")
                         mediaPlayerService!!.setSongList(audioList)
                         mediaPlayerService!!.setMediaPlayerControllerListener(this@HomeActivity)
+                        Log.d(TAG, "#Time2 : ${System.currentTimeMillis() / 1000L}")
 
                         if (appPreferences!!.getLastAudio() != null) {
                             var audio = appPreferences!!.getLastAudio()
@@ -824,7 +807,11 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
 
                             mediaPlayerService!!.setActiveAudio(audio!!)
                             mediaPlayerService!!.setAudioIndex(index)
+                            Log.d(TAG, "#Time3 : ${System.currentTimeMillis() / 1000L}")
+
                             updatePlayerData(audio)
+                            Log.d(TAG, "#Time4 : ${System.currentTimeMillis() / 1000L}")
+
                             if (bottom_sheet.visibility == View.GONE) {
                                 bottom_sheet.visibility = View.VISIBLE
                                 miniLayout!!.alpha = 1f
@@ -841,7 +828,9 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
 
                             mediaPlayerService!!.setActiveAudio(audio)
                             mediaPlayerService!!.setAudioIndex(index)
+                            Log.d(TAG, "#Time3 : ${System.currentTimeMillis() / 1000L}")
                             updatePlayerData(audio)
+                            Log.d(TAG, "#Time10 : ${System.currentTimeMillis() / 1000L}")
                             if (bottom_sheet.visibility == View.GONE) {
                                 bottom_sheet.visibility = View.VISIBLE
                                 miniLayout!!.alpha = 1f
@@ -882,33 +871,73 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         anim.start()
     }
 
-    fun createPaletteSync(bitmap: Bitmap): Palette {
-        val palette = Palette.from(bitmap).generate()
-        return palette
+    private fun createPaletteSync(bitmap: Bitmap): Palette {
+        return Palette.from(bitmap).generate()
     }
 
     private fun changeThem(bitmap: Bitmap) {
-//        return
         val vibrantSwatch: Palette.Swatch? = createPaletteSync(bitmap).vibrantSwatch
+        val mutedSwatch: Palette.Swatch? = createPaletteSync(bitmap).mutedSwatch
         if (vibrantSwatch != null) {
-            /*v1.setBackgroundColor(vibrantSwatch.titleTextColor)
-            v2.setBackgroundColor(vibrantSwatch.bodyTextColor)
-            v3.setBackgroundColor(vibrantSwatch.rgb)*/
+            val mixedColorOne = manipulateColor(vibrantSwatch.rgb + vibrantSwatch.bodyTextColor + vibrantSwatch.titleTextColor, 1.8f)
+            tabs.setTabTextColors(
+                    Color.WHITE,
+                    mixedColorOne
+            )
+            tabs.setSelectedTabIndicatorColor(mixedColorOne)
+            val gd = GradientDrawable(
+                    GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(manipulateColor(mixedColorOne, 0.5f), mixedColorOne))
+            gd.cornerRadius = 0f
+            progressBar.progressDrawable.colorFilter = LightingColorFilter(Color.parseColor("#000000"), mixedColorOne)
+            seekBar.progressDrawable.colorFilter = LightingColorFilter(Color.parseColor("#000000"), mixedColorOne)
+            seekBar.thumb.colorFilter = LightingColorFilter(Color.parseColor("#000000"), mixedColorOne)
+        }
+        if (mutedSwatch != null) {
+            val mixedColorTwo = manipulateColor(mutedSwatch.rgb + mutedSwatch.bodyTextColor + mutedSwatch.titleTextColor, 0.8f)
+            val paint = Paint()
+            paint.colorFilter = LightingColorFilter(Color.parseColor("#000000"), mixedColorTwo)
+
+            val filteredColor = LightingColorFilter(Color.parseColor("#000000"), mixedColorTwo)
 
             tabs.setTabTextColors(
-                    vibrantSwatch.rgb,
-                    vibrantSwatch.rgb
+                    Color.WHITE,
+                    paint.color
             )
-//            toolbar_title.setTextColor(vibrantSwatch.rgb)
-            tabs.setSelectedTabIndicatorColor(vibrantSwatch.rgb)
-            val gd = GradientDrawable(
-                    GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(manipulateColor(vibrantSwatch.rgb, 0.5f), vibrantSwatch.rgb))
-            gd.cornerRadius = 0f
-//            progressBar.progressDrawable=gd
-            progressBar.progressDrawable.colorFilter = LightingColorFilter(Color.parseColor("#000000"), vibrantSwatch.rgb)
-            seekBar.progressDrawable.colorFilter = LightingColorFilter(Color.parseColor("#000000"), vibrantSwatch.rgb)
-            seekBar.thumb.colorFilter = LightingColorFilter(Color.parseColor("#000000"), vibrantSwatch.rgb)
+            tabs.setSelectedTabIndicatorColor(paint.color)
+
+            /*val gd = GradientDrawable(
+                    GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(manipulateColor(mixedColorTwo, 0.5f), mixedColorTwo))
+            gd.cornerRadius = 0f */
+            progressBar.setBackgroundColor(mixedColorTwo)
+//            progressBar.progressDrawable.colorFilter = filteredColor
+            seekBar.progressDrawable.colorFilter = filteredColor
+            seekBar.thumb.colorFilter = filteredColor
+
+            tabs.setTabTextColors(
+                    Color.WHITE,
+                    paint.color
+            )
+            tabs.setSelectedTabIndicatorColor(paint.color)
+
+
         }
+        /*if(mutedSwatch!=null && vibrantSwatch!=null){
+            view5.setBackgroundColor(mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor)
+
+            tabs.setTabTextColors(
+                    Color.WHITE,
+                    Color.WHITE
+            )
+            tabs.setSelectedTabIndicatorColor(mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor)
+            val gd = GradientDrawable(
+                    GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(manipulateColor(mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor, 0.5f), mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor))
+            gd.cornerRadius = 0f
+            progressBar.progressDrawable.colorFilter = LightingColorFilter(Color.parseColor("#000000"), mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor)
+            seekBar.progressDrawable.colorFilter = LightingColorFilter(Color.parseColor("#000000"), mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor)
+            seekBar.thumb.colorFilter = LightingColorFilter(Color.parseColor("#000000"), mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor)
+
+
+        }*/
 
     }
 

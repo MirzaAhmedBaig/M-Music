@@ -63,6 +63,11 @@ class MusicListFragment : Fragment(), ItemClickListener {
             adapter!!.loadAllBitmap()
 
             val decoration = DividerItemDecoration(activity, VERTICAL)
+            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                decoration.setDrawable(activity!!.resources.getDrawable(R.drawable.white,null))
+            }else{
+                decoration.setDrawable(activity!!.resources.getDrawable(R.drawable.white))
+            }*/
             view.recyclerview.addItemDecoration(decoration)
         }
         globalView = view
@@ -83,6 +88,8 @@ class MusicListFragment : Fragment(), ItemClickListener {
     }
 
     fun updatePlayingStatus(audio: Audio, oldAudio: Audio) {
+        if (dataList == null)
+            return
         if (dataList!!.contains(oldAudio.data)) {
             val index = dataList!!.indexOf(oldAudio.data)
             list!![index].playing = false
@@ -96,6 +103,8 @@ class MusicListFragment : Fragment(), ItemClickListener {
     }
 
     fun updatePausePlay(audio: Audio, status: Int) {
+        if (dataList == null)
+            return
         if (dataList!!.contains(audio.data)) {
             val index = dataList!!.indexOf(audio.data)
             list!![index].playing = status == 1
@@ -104,6 +113,8 @@ class MusicListFragment : Fragment(), ItemClickListener {
     }
 
     fun pauseAudio(audio: Audio, isPlaying: Boolean) {
+        if (dataList == null)
+            return
         if (dataList!!.contains(audio.data)) {
             val index = dataList!!.indexOf(audio.data)
             list!![index].playing = isPlaying

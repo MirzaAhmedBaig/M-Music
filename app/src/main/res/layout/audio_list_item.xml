@@ -5,6 +5,7 @@
     android:padding="10dp">
 
     <ImageView
+        android:contentDescription="@string/image"
         android:id="@+id/thumbnail"
         android:layout_width="50dp"
         android:layout_height="50dp" />
@@ -13,17 +14,14 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
         android:layout_toEndOf="@+id/thumbnail"
-        android:layout_toLeftOf="@+id/end_view"
-        android:layout_toRightOf="@+id/thumbnail"
-        android:layout_toStartOf="@+id/end_view"
+        android:layout_toStartOf="@+id/playIcon"
         android:fontFamily="@font/music"
         android:maxLines="1"
-        android:text="Titles"
+        android:text="@string/titles"
         android:textColor="#ffffff"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView
@@ -31,40 +29,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/title"
-        android:layout_marginLeft="10dp"
         android:layout_marginStart="10dp"
         android:layout_toEndOf="@+id/thumbnail"
-        android:layout_toLeftOf="@+id/end_view"
-        android:layout_toRightOf="@+id/thumbnail"
-        android:layout_toStartOf="@+id/end_view"
+        android:layout_toStartOf="@+id/playIcon"
         android:fontFamily="@font/music"
         android:padding="0dp"
-        android:text="Artist.........."
+        android:text="@string/artist"
         android:textColor="#ffffff"
         android:textSize="12sp"
         android:textStyle="bold" />
 
-    <FrameLayout
-        android:id="@+id/end_view"
+    <ImageView
+        android:id="@+id/playIcon"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:orientation="vertical">
+        android:layout_centerVertical="true"
+        android:background="@drawable/ic_pause"
+        android:contentDescription="@string/image"
+        android:visibility="gone" />
 
-        <ImageView
-            android:id="@+id/playIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|top"
-            android:background="@drawable/ic_play_button_filled" />
-
-        <TextView
-            android:id="@+id/songTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|bottom"
-            android:text="00:00"
-            android:textColor="#ffffff" />
-    </FrameLayout>
 </RelativeLayout>

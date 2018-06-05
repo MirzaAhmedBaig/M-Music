@@ -6,6 +6,10 @@
     android:background="@color/colorPrimary">
 
     <ImageView
+        android:id="@+id/big_back"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <ImageView
         android:id="@+id/status_bar_album_art"
         android:layout_width="@dimen/notification_expanded_height"
         android:layout_height="@dimen/notification_expanded_height"

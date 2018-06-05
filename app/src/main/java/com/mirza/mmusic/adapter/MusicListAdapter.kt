@@ -43,14 +43,16 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
         }
 
         override fun onClick(view: View?) {
-            if (adapterPosition >= 0)
+            if (adapterPosition >= 0) {
                 itemClickListener.onClick(view, adapterPosition)
+                play.visibility = View.VISIBLE
+                audioList[adapterPosition].playing = true
+            }
         }
 
         var root_view: View = view.findViewById(R.id.root_view)
         var title: TextView = view.findViewById(R.id.title)
         var artist: TextView = view.findViewById(R.id.artist)
-        var songTime: TextView = view.findViewById(R.id.songTime)
         var play: ImageView = view.findViewById(R.id.playIcon)
         var thumbnail: ImageView = view.findViewById(R.id.thumbnail)
 
@@ -72,7 +74,7 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
         Log.d(TAG, "Position is : $position")
         holder.title.text = audio.title
         holder.artist.text = audio.artist
-        holder.songTime.text = audio.endTime
+//        holder.songTime.text = audio.endTime
 
         if (getBitmapFromMemCache(position) != null) {
             holder.thumbnail.setImageBitmap(getBitmapFromMemCache(position))
@@ -81,9 +83,9 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
         }
 
         if (audioList[position].playing) {
-            holder.play.setBackgroundResource(R.drawable.ic_pause)
+            holder.play.visibility = View.VISIBLE
         } else {
-            holder.play.setBackgroundResource(R.drawable.ic_play_button_filled)
+            holder.play.visibility = View.GONE
         }
     }
 

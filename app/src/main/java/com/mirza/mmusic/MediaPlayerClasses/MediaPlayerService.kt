@@ -257,10 +257,13 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
             bigViews = RemoteViews(packageName,
                     R.layout.status_bar_expanded)
         }
+
+        val bitmap = Constants.getDefaultAlbumArt(this, activeAudio!!.data!!)
+
         bigViews!!.setImageViewBitmap(R.id.status_bar_album_art,
-                Constants.getDefaultAlbumArt(this, activeAudio!!.data!!))
+                bitmap)
         views!!.setImageViewBitmap(R.id.status_bar_album_art,
-                Constants.getDefaultAlbumArt(this, activeAudio!!.data!!))
+                bitmap)
 
         val notificationIntent = Intent(this, HomeActivity::class.java)
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
