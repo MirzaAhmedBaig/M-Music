@@ -1,4 +1,4 @@
-package com.mirza.mmusic
+package com.mirza.mmusic.extensions
 
 import android.app.Activity
 import android.content.Context
@@ -9,6 +9,7 @@ import android.graphics.Canvas
 import android.net.Uri
 import android.provider.MediaStore
 import android.view.View
+import com.mirza.mmusic.R
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException

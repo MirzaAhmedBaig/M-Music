@@ -26,7 +26,7 @@ class HardButtonReceiver(private val mButtonListener: HardButtonListener?) : Bro
             val key = intent.getParcelableExtra<Parcelable>(Intent.EXTRA_KEY_EVENT) as KeyEvent
 
             // This is just some example logic, you may want to change this for different behaviour
-            if (key.action === KeyEvent.ACTION_UP) {
+            if (key.action == KeyEvent.ACTION_UP) {
                 val keycode = key.keyCode
 
                 // These are examples for detecting key presses on a Nexus One headset

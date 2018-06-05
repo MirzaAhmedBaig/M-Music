@@ -1,4 +1,4 @@
-package extensions
+package com.mirza.mmusic.extensions
 
 import android.graphics.Color
 
