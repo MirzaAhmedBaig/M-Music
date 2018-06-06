@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:background="@drawable/ic_pause"
+        android:background="@drawable/ic_music_player"
         android:contentDescription="@string/image"
         android:visibility="gone" />
 

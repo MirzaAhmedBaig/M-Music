@@ -15,3 +15,14 @@ fun manipulateColor(color: Int, factor: Float): Int {
             Math.min(g, 255),
             Math.min(b, 255))
 }
+
+/**
+ * @param color input color
+ * @param offset float value from 0 to lighten color more offset more light color
+ */
+fun getLighterShadeColor(color: Int, offset: Float = 2f): Int {
+    val hsv = FloatArray(3)
+    Color.colorToHSV(color, hsv)
+    hsv[2] *= offset
+    return Color.HSVToColor(hsv)
+}

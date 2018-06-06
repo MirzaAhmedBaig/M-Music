@@ -71,7 +71,6 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     private var appPreferences: AppPreferences? = null
 
     private var isAsyncCalled: Boolean = false
-    private var soundLevel: Float = 0f
 
     override fun onCreate() {
         super.onCreate()
@@ -443,6 +442,7 @@ class MediaPlayerService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     fun seekTo(posn: Int) {
         mediaPlayer!!.seekTo(posn)
     }
+
 
     fun startPlayer() {
         Log.d(TAG, "Playing Data : ${activeAudio!!.data}")

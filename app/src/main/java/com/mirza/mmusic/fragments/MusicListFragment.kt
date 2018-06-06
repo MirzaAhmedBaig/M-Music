@@ -30,6 +30,7 @@ class MusicListFragment : Fragment(), ItemClickListener {
     private var musicPlayerListener: MusicPlayerListener? = null
     private var adapter: MusicListAdapter? = null
 
+
     private var dataList: ArrayList<String>? = null
 
     fun setUpMusicListener(musicPlayerListener: MusicPlayerListener) {
@@ -153,6 +154,12 @@ class MusicListFragment : Fragment(), ItemClickListener {
             adapter!!.notifyItemChanged(index)
         }
 
+    }
+
+    fun updateColor(plaingColor: Int) {
+        if (adapter != null) {
+            adapter!!.setThemColor(plaingColor)
+        }
     }
 
 

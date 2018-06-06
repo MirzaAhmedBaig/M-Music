@@ -3,6 +3,9 @@ package com.mirza.mmusic.adapter
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.LightingColorFilter
+import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
 import android.os.AsyncTask
 import android.support.v7.widget.RecyclerView
@@ -35,6 +38,9 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
 
     private var bitmapCache: LruCache<Int, Bitmap> = LruCache(cacheSize)
 
+    private var playingColor = Color.WHITE
+    private var filteredColor = LightingColorFilter(Color.parseColor("#000000"), Color.WHITE)
+
 
     inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         init {
@@ -45,6 +51,7 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
         override fun onClick(view: View?) {
             if (adapterPosition >= 0) {
                 itemClickListener.onClick(view, adapterPosition)
+                (play.background as Drawable).colorFilter = filteredColor
                 play.visibility = View.VISIBLE
                 audioList[adapterPosition].playing = true
             }
@@ -84,8 +91,12 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
 
         if (audioList[position].playing) {
             holder.play.visibility = View.VISIBLE
+            holder.title.setTextColor(playingColor)
+            holder.artist.setTextColor(playingColor)
         } else {
             holder.play.visibility = View.GONE
+            holder.title.setTextColor(Color.WHITE)
+            holder.artist.setTextColor(Color.WHITE)
         }
     }
 
@@ -101,6 +112,11 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
 
     private fun getBitmapFromMemCache(index: Int): Bitmap? {
         return bitmapCache.get(index)
+    }
+
+    fun setThemColor(playingColor: Int) {
+        this.playingColor = playingColor
+        filteredColor = LightingColorFilter(Color.parseColor("#000000"), playingColor)
     }
 
     fun loadAllBitmap() {

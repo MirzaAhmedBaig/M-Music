@@ -11,8 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@string/image"
-        android:scaleType="centerCrop"
-        android:src="@drawable/music" />
+        android:scaleType="centerCrop" />
 
 
     <android.support.design.widget.AppBarLayout
@@ -20,8 +19,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
-        app:elevation="0dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:elevation="0dp">
 
 
         <android.support.v7.widget.Toolbar
@@ -51,8 +50,8 @@
                     android:layout_marginBottom="10dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="20dp"
-                    android:drawableStart="@drawable/ic_letter_m"
                     android:drawablePadding="@dimen/dp_10"
+                    android:drawableStart="@drawable/ic_letter_m"
                     android:fontFamily="@font/avenir_thin"
                     android:text="@string/music"
                     android:textAlignment="center"
@@ -77,55 +76,12 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <!--<LinearLayout-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="end"-->
-    <!--android:orientation="vertical">-->
-    <!--<View-->
-    <!--android:id="@+id/view1"-->
-    <!--android:layout_width="50dp"-->
-    <!--android:layout_height="50dp"/>-->
-    <!--<View-->
-    <!--android:id="@+id/view2"-->
-    <!--android:layout_width="50dp"-->
-    <!--android:layout_height="50dp"/>-->
-    <!--<View-->
-    <!--android:id="@+id/view3"-->
-    <!--android:layout_width="50dp"-->
-    <!--android:layout_height="50dp"/>-->
-    <!--<View-->
-    <!--android:id="@+id/view4"-->
-    <!--android:layout_width="50dp"-->
-    <!--android:layout_height="50dp"/>-->
-    <!--<View-->
-    <!--android:id="@+id/view5"-->
-    <!--android:layout_width="50dp"-->
-    <!--android:layout_height="50dp"/>-->
-    <!--<View-->
-    <!--android:id="@+id/view6"-->
-    <!--android:layout_width="50dp"-->
-    <!--android:layout_height="50dp"/>-->
-    <!--</LinearLayout>-->
 
-    <TextView
-        android:id="@+id/noSong_text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:fontFamily="@font/music"
-        android:gravity="center"
-        android:text="@string/no_songs_found"
-        android:textAlignment="center"
-        android:textColor="@color/secondary_text"
-        android:textSize="20sp"
-        android:visibility="gone" />
-
-    <ProgressBar
+    <!--<ProgressBar
         android:id="@+id/music_load_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        android:layout_gravity="center" />-->
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
@@ -158,18 +114,21 @@
                 android:layout_height="70dp"
                 android:contentDescription="@string/image" />
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyleHorizontal"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="-4dp"
-                android:layout_marginTop="-6.5dp"
-                android:layout_toEndOf="@id/smallThumbnail"
-                android:backgroundTint="@color/colorPrimary"
-                android:paddingTop="-4dp"
-                android:progress="100"
-                android:visibility="visible" />
+                android:layout_height="4dp"
+                android:layout_toEndOf="@id/smallThumbnail">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_gravity="center"
+                    android:indeterminate="false"
+                    android:progress="100" />
+
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/songTitle"
@@ -290,14 +249,14 @@
                 android:id="@+id/songThumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@id/seekBar"
-                android:layout_alignParentTop="true"
-                android:layout_marginBottom="90dp"
-                android:layout_marginEnd="50dp"
-                android:layout_marginStart="50dp"
-                android:layout_marginTop="90dp"
+                android:layout_above="@id/infoView"
+                android:layout_below="@id/down_arrow"
+                android:layout_marginBottom="10dp"
+                android:layout_marginEnd="40dp"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="@dimen/dp_20"
                 android:contentDescription="@string/image"
-                android:scaleType="fitXY" />
+                android:scaleType="centerCrop" />
 
             <android.support.v4.view.ViewPager
                 android:id="@+id/playerPager"
@@ -338,28 +297,47 @@
 
             </LinearLayout>
 
-
-            <TextView
-                android:id="@+id/songName"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/infoView"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/down_arrow"
+                android:layout_above="@id/pager_indicator"
                 android:layout_centerHorizontal="true"
                 android:layout_marginEnd="20dp"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="5dp"
-                android:ellipsize="marquee"
-                android:fontFamily="@font/music"
+                android:layout_marginTop="15dp"
                 android:gravity="center"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:scrollHorizontally="true"
-                android:singleLine="true"
-                android:text="@string/song_name"
-                android:textColor="#ffffff"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:orientation="vertical">
 
-                />
+                <TextView
+
+                    android:id="@+id/songName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:fontFamily="@font/music"
+                    android:gravity="center"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="@string/song_name"
+                    android:textColor="#ffffff"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/songArtist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/music"
+                    android:gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/song_name"
+                    android:textColor="#ffffff"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/startTime"
@@ -411,11 +389,17 @@
                     android:orientation="horizontal">
 
                     <FrameLayout
-                        android:id="@+id/previous_view"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/rounded_view">
+                        android:layout_gravity="center">
+
+                        <ImageButton
+                            android:id="@+id/previous_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:contentDescription="@string/imagebutton"
+                            android:src="@drawable/rounded_view" />
 
                         <ImageButton
                             android:id="@+id/previous"
@@ -427,13 +411,19 @@
                     </FrameLayout>
 
                     <FrameLayout
-                        android:id="@+id/play_view"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:layout_gravity="center"
                         android:layout_marginLeft="15dp"
-                        android:layout_marginRight="15dp"
-                        android:background="@drawable/rounded_view">
+                        android:layout_marginRight="15dp">
+
+                        <ImageButton
+                            android:id="@+id/play_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:contentDescription="@string/imagebutton"
+                            android:src="@drawable/rounded_view" />
 
                         <ImageButton
                             android:id="@+id/play"
@@ -445,11 +435,17 @@
                     </FrameLayout>
 
                     <FrameLayout
-                        android:id="@+id/next_view"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/rounded_view">
+                        android:layout_gravity="center">
+
+                        <ImageButton
+                            android:id="@+id/next_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:contentDescription="@string/imagebutton"
+                            android:src="@drawable/rounded_view" />
 
                         <ImageButton
                             android:id="@+id/next"

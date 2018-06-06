@@ -1,24 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#0E222E</color>
-    <color name="colorPrimary1">#e50e222e</color>
     <color name="colorPrimaryDark">#77A5A1</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="primary_text">#212121</color>
     <color name="secondary_text">#727272</color>
-    <color name="icons">#ffffff</color>
-    <color name="divider">#b6b6b6</color>
     <color name="cardview_light_background">#00bcd4</color>
     <color name="backgroundMain">#0E222E</color>
-    <color name="customGreen">#3A7C58</color>
-    <color name="lightGreen">#5CBD77</color>
 
-    <color name="textColorPrimary">#FFFFFF</color>
-    <color name="windowBackground">#FFFFFF</color>
-    <color name="navigationBarColor">#000000</color>
-    <color name="transparent">#2477a5a1</color>
-    <color name="ringColor">#d0ffffff</color>
-    <color name="white">#ffffff</color>
     <color name="back_transparent">#6d000000</color>
     <!--<color name="colorAccent">#c8e8ff</color>-->
 </resources>
