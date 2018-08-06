@@ -1,0 +1,86 @@
+{
+  "project_info": {
+    "project_number": "1015582434080",
+    "firebase_url": "https://m-music-dashboard.firebaseio.com",
+    "project_id": "m-music-dashboard",
+    "storage_bucket": "m-music-dashboard.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1015582434080:android:1519d637142bebcd",
+        "android_client_info": {
+          "package_name": "com.mirza.mmusic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1015582434080-kn3p3pbh0q7j9r2jql288v0eb7aufftv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8lUQZIImcgLVJZbE8M4QnNg_inPUldqk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1015582434080:android:1b14b79d673c74a1",
+        "android_client_info": {
+          "package_name": "org.mab.m_musicdashboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1015582434080-9onuf6rs3ku3iaveds3ihk82275m78c7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.mab.m_musicdashboard",
+            "certificate_hash": "78afc060bd2b0692a134a6772f2cac36ec4e7071"
+          }
+        },
+        {
+          "client_id": "1015582434080-kn3p3pbh0q7j9r2jql288v0eb7aufftv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8lUQZIImcgLVJZbE8M4QnNg_inPUldqk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1015582434080-kn3p3pbh0q7j9r2jql288v0eb7aufftv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

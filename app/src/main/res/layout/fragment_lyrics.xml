@@ -2,26 +2,41 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#8fffffff"
     tools:context="com.mirza.mmusic.fragments.LyricsFragment">
 
-    <TextView
-        android:id="@+id/songName"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/lyrics_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:layout_marginEnd="30dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="60dp"
+            android:gravity="start"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+    </android.support.v4.widget.NestedScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|top"
-        android:layout_marginEnd="@dimen/dp_30"
-        android:layout_marginStart="@dimen/dp_30"
-        android:layout_marginTop="30dp"
-        android:ellipsize="marquee"
-        android:fontFamily="@font/music"
-        android:gravity="center"
-        android:singleLine="true"
-        android:text="Song name"
-        android:textAlignment="center"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/not_found_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:textColor="#ffffff"
-        android:textSize="20sp"
+        android:text="@string/not_found"
         android:textStyle="bold"
+        android:textSize="18sp"
         android:visibility="gone" />
+
 
 </FrameLayout>

@@ -5,6 +5,7 @@
     <color name="secondary_text">#727272</color>
     <color name="cardview_light_background">#00bcd4</color>
     <color name="backgroundMain">#0E222E</color>
+    <color name="white">#FFFFFF</color>
 
     <color name="back_transparent">#6d000000</color>
     <!--<color name="colorAccent">#c8e8ff</color>-->

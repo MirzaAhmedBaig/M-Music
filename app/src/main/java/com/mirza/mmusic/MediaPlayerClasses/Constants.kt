@@ -30,15 +30,14 @@ object Constants {
         val picData = mediaMetadataRetriever.embeddedPicture
         val options = BitmapFactory.Options()
         options.inJustDecodeBounds = true
-        var bitmapI: Bitmap?
-        if (picData != null) {
-            var bitmapImage = BitmapFactory.decodeByteArray(picData, 0, picData.size)
-            bitmapI = Bitmap.createScaledBitmap(bitmapImage, 300, 300, true)
+
+        return if (picData != null) {
+            val bitmapImage = BitmapFactory.decodeByteArray(picData, 0, picData.size)
+            Bitmap.createScaledBitmap(bitmapImage, 300, 300, true)
         } else {
-            bitmapI = BitmapFactory.decodeResource(context.resources,
+            BitmapFactory.decodeResource(context.resources,
                     R.drawable.music, options)
         }
-        return bitmapI
 
     }
 

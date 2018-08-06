@@ -262,7 +262,7 @@
                 android:id="@+id/playerPager"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@id/seekBar"
+                android:layout_above="@id/infoView"
                 android:layout_alignParentTop="true" />
 
             <LinearLayout
@@ -389,17 +389,11 @@
                     android:orientation="horizontal">
 
                     <FrameLayout
+                        android:id="@+id/previous_view"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
-                        android:layout_gravity="center">
-
-                        <ImageButton
-                            android:id="@+id/previous_view"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@null"
-                            android:contentDescription="@string/imagebutton"
-                            android:src="@drawable/rounded_view" />
+                        android:layout_gravity="center"
+                        android:background="@drawable/rounded_view">
 
                         <ImageButton
                             android:id="@+id/previous"
@@ -411,19 +405,13 @@
                     </FrameLayout>
 
                     <FrameLayout
+                        android:id="@+id/play_view"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:layout_gravity="center"
                         android:layout_marginLeft="15dp"
-                        android:layout_marginRight="15dp">
-
-                        <ImageButton
-                            android:id="@+id/play_view"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@null"
-                            android:contentDescription="@string/imagebutton"
-                            android:src="@drawable/rounded_view" />
+                        android:layout_marginRight="15dp"
+                        android:background="@drawable/rounded_view">
 
                         <ImageButton
                             android:id="@+id/play"
@@ -435,17 +423,11 @@
                     </FrameLayout>
 
                     <FrameLayout
+                        android:id="@+id/next_view"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
-                        android:layout_gravity="center">
-
-                        <ImageButton
-                            android:id="@+id/next_view"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@null"
-                            android:contentDescription="@string/imagebutton"
-                            android:src="@drawable/rounded_view" />
+                        android:layout_gravity="center"
+                        android:background="@drawable/rounded_view">
 
                         <ImageButton
                             android:id="@+id/next"

@@ -49,6 +49,8 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
         }
 
         override fun onClick(view: View?) {
+            if (type == 1 && adapterPosition == audioList.lastIndex)
+                return
             if (adapterPosition >= 0) {
                 itemClickListener.onClick(view, adapterPosition)
                 (play.background as Drawable).colorFilter = filteredColor
@@ -72,8 +74,8 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        /*if(position==audioList.lastIndex){
-            holder.root_view.visibility=View.INVISIBLE
+        /*if (holder.adapterPosition == audioList.lastIndex && type == 1) {
+            holder.root_view.visibility = View.INVISIBLE
             return
         }*/
 
@@ -86,10 +88,11 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
         if (getBitmapFromMemCache(position) != null) {
             holder.thumbnail.setImageBitmap(getBitmapFromMemCache(position))
         } else {
-            Picasso.with(activity.baseContext).load(R.drawable.music).into(holder.thumbnail)
+            Picasso.get().load(R.drawable.music).into(holder.thumbnail)
         }
 
         if (audioList[position].playing) {
+            (holder.play.background as Drawable).colorFilter = filteredColor
             holder.play.visibility = View.VISIBLE
             holder.title.setTextColor(playingColor)
             holder.artist.setTextColor(playingColor)
@@ -120,7 +123,7 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
     }
 
     fun loadAllBitmap() {
-        AsyncTask.execute({
+        AsyncTask.execute {
             for (i in 0 until audioList.size) {
                 val mediaMetadataRetriever = MediaMetadataRetriever()
                 mediaMetadataRetriever.setDataSource(audioList[i].data)
@@ -132,12 +135,12 @@ class MusicListAdapter(private val activity: Activity, private val type: Int, pr
                     val bitmapI = Bitmap.createScaledBitmap(bitmapImage, 90, 90, true)
 
                     addBitmapToMemoryCache(i, bitmapI)
-                    activity.runOnUiThread({
+                    activity.runOnUiThread {
                         notifyItemChanged(i)
-                    })
+                    }
 
                 }
             }
-        })
+        }
     }
 }

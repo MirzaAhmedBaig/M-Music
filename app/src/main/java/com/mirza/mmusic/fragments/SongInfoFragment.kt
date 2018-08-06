@@ -25,7 +25,8 @@ class SongInfoFragment : Fragment() {
     }
 
     fun changeSong(audio: Audio) {
-//        view!!.songName.text = audio.title
+        if (view != null)
+            view!!.songName.text = audio.title
     }
 
     companion object {

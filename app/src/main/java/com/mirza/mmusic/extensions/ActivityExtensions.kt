@@ -6,8 +6,10 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.provider.MediaStore
+import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.mirza.mmusic.R
 import java.io.ByteArrayOutputStream
@@ -63,4 +65,10 @@ fun getDefaultBitmap(context: Context): Bitmap? {
     options.inJustDecodeBounds = true
     return BitmapFactory.decodeResource(context.resources,
             R.drawable.music, options)
+}
+
+fun AppCompatActivity.isNetworkAvaialable(): Boolean {
+    val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val activeNetworkInfo = connectivityManager.activeNetworkInfo
+    return activeNetworkInfo != null && activeNetworkInfo.isConnected
 }

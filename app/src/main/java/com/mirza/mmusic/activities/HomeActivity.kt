@@ -12,6 +12,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.LightingColorFilter
+import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
 import android.os.*
 import android.provider.MediaStore
@@ -24,21 +25,23 @@ import android.view.*
 import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.Toast
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.mirza.mmusic.AppPreferences
 import com.mirza.mmusic.MediaPlayerClasses.MediaPlayerService
 import com.mirza.mmusic.R
 import com.mirza.mmusic.adapter.PlayerPagerAdapter
 import com.mirza.mmusic.adapter.ViewPagerAdapter
-import com.mirza.mmusic.extensions.getDp
-import com.mirza.mmusic.extensions.getLighterShadeColor
-import com.mirza.mmusic.extensions.isFileExist
-import com.mirza.mmusic.extensions.manipulateColor
+import com.mirza.mmusic.extensions.*
 import com.mirza.mmusic.fragments.LyricsFragment
 import com.mirza.mmusic.fragments.MusicListFragment
 import com.mirza.mmusic.fragments.SongInfoFragment
 import com.mirza.mmusic.interfaces.MediaPlayerControllerListener
 import com.mirza.mmusic.interfaces.MusicPlayerListener
 import com.mirza.mmusic.models.Audio
+import com.mirza.mmusic.models.Lyrics
 import com.mirza.mmusic.models.db.RealmFavAudio
 import com.mirza.mmusic.models.db.RealmRecentAudio
 import com.squareup.picasso.Picasso
@@ -89,6 +92,10 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
     private var filteredColor = LightingColorFilter(Color.parseColor("#000000"), Color.WHITE)
     private var whiteFilteredColor = LightingColorFilter(Color.parseColor("#000000"), Color.WHITE)
 
+    private val mDatabase by lazy {
+        FirebaseDatabase.getInstance().reference
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -102,6 +109,8 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         setAppPreferences()
         setUpBottomSheet()
         setSupportActionBar(toolbar)
+
+        grabLyricsData()
     }
 
     override fun onResume() {
@@ -277,6 +286,11 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
             override fun onPageSelected(position: Int) {
                 currentIndex = position
                 setDotIndicator(position)
+                if (position == 0) {
+                    songThumbnail.visibility = View.VISIBLE
+                } else {
+                    songThumbnail.visibility = View.INVISIBLE
+                }
             }
 
         })
@@ -591,7 +605,7 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
         play.setBackgroundResource(R.drawable.ic_pause_button)
         play_m.setBackgroundResource(R.drawable.ic_pause_button_small)
 
-        lyricsFragment!!.changeSong(mediaPlayerService!!.getActiveAudio())
+//        lyricsFragment!!.changeSong(mediaPlayerService!!.getActiveAudio())
         songInfoFragment!!.changeSong(mediaPlayerService!!.getActiveAudio())
     }
 
@@ -683,8 +697,8 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
             Blurry.with(this).from(bitmap).into(app_background)
             Blurry.with(this).from(bitmap).into(back_min)
         } else {
-            Picasso.with(this).load(R.drawable.music).resize(100, 100).into(smallThumbnail)
-            Picasso.with(this).load(R.drawable.music).into(songThumbnail)
+            Picasso.get().load(R.drawable.music).resize(100, 100).into(smallThumbnail)
+            Picasso.get().load(R.drawable.music).into(songThumbnail)
             val bitmap = BitmapFactory.decodeResource(resources, R.drawable.music)
             Blurry.with(this).from(bitmap).into(app_background)
             Blurry.with(this).from(bitmap).into(back_min)
@@ -785,9 +799,9 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
                             minutes %= 60
 
                             val hr: Int = (((mediaPlayerService!!.getCurrentPosition() / 1000) / 60) / 60)
-                            startTime.text = "$hr:$minutes:$seconds"
+                            startTime.text = "${format2LenStr(hr)}:${format2LenStr(minutes)}:${format2LenStr(seconds)}"
                         } else {
-                            startTime.text = "$minutes:$seconds"
+                            startTime.text = "${format2LenStr(minutes)}:${format2LenStr(seconds)}"
                         }
                         seekBar.progress = (mediaPlayerService!!.getCurrentPosition())
                         progressBar.progress = (mediaPlayerService!!.getCurrentPosition())
@@ -934,16 +948,13 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
             )
             tabs.setSelectedTabIndicatorColor(lightColor)
 
-            /*val gd = GradientDrawable(
-                    GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(manipulateColor(mixedColorTwo, 0.5f), mixedColorTwo))
-            gd.cornerRadius = 0f */
             progressBar.progressDrawable.colorFilter = filteredColor
             seekBar.progressDrawable.colorFilter = filteredColor
             seekBar.thumb.colorFilter = filteredColor
 
-            previous_view.colorFilter = filteredColor
-            play_view.colorFilter = filteredColor
-            next_view.colorFilter = filteredColor
+            (previous_view.background as Drawable).colorFilter = filteredColor
+            (play_view.background as Drawable).colorFilter = filteredColor
+            (next_view.background as Drawable).colorFilter = filteredColor
 
             allMusicFragment!!.updateColor(lightColor)
             favMusicFragment!!.updateColor(lightColor)
@@ -959,39 +970,20 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
                     lightColor
             )
             tabs.setSelectedTabIndicatorColor(lightColor)
-            /*val gd = GradientDrawable(
-                    GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(manipulateColor(mixedColorOne, 0.5f), mixedColorOne))
-            gd.cornerRadius = 0f*/
+
+
             progressBar.progressDrawable.colorFilter = filteredColor
             seekBar.progressDrawable.colorFilter = filteredColor
             seekBar.thumb.colorFilter = filteredColor
 
-            previous_view.colorFilter = filteredColor
-            play_view.colorFilter = filteredColor
-            next_view.colorFilter = filteredColor
+            (previous_view.background as Drawable).colorFilter = filteredColor
+            (play_view.background as Drawable).colorFilter = filteredColor
+            (next_view.background as Drawable).colorFilter = filteredColor
 
             allMusicFragment!!.updateColor(lightColor)
             favMusicFragment!!.updateColor(lightColor)
             recentMusicFragment!!.updateColor(lightColor)
         }
-        /*if(mutedSwatch!=null && vibrantSwatch!=null){
-            view5.setBackgroundColor(mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor)
-
-            tabs.setTabTextColors(
-                    Color.WHITE,
-                    Color.WHITE
-            )
-            tabs.setSelectedTabIndicatorColor(mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor)
-            val gd = GradientDrawable(
-                    GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(manipulateColor(mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor, 0.5f), mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor))
-            gd.cornerRadius = 0f
-            progressBar.progressDrawable.colorFilter = LightingColorFilter(Color.parseColor("#000000"), mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor)
-            seekBar.progressDrawable.colorFilter = LightingColorFilter(Color.parseColor("#000000"), mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor)
-            seekBar.thumb.colorFilter = LightingColorFilter(Color.parseColor("#000000"), mixedColorTwo+vibrantSwatch!!.rgb+vibrantSwatch!!.bodyTextColor+vibrantSwatch!!.titleTextColor)
-
-
-        }*/
-
     }
 
     private fun hideShowMainViews(visibility: Int) {
@@ -1020,5 +1012,34 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
 
     }
 
+    private fun grabLyricsData() {
+        if (isNetworkAvaialable()) {
+            val list = ArrayList<Lyrics>()
+            mDatabase.child("lyrics").addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    dataSnapshot.children.forEach {
+                        it.getValue<Lyrics>(Lyrics::class.java)?.let {
+                            list.add(it)
+                        }
+                    }
+                    Log.d(TAG, "Lyrics Size : ${list.size}")
+                    val realm = Realm.getDefaultInstance()
+                    realm.beginTransaction()
+                    realm.copyToRealmOrUpdate(list)
+                    realm.commitTransaction()
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Log.d(TAG, "loadPost:onCancelled", databaseError.toException())
+
+                }
+
+            })
+        }
+    }
+
+    private fun format2LenStr(num: Int): String {
+        return if (num < 10) "0$num" else num.toString()
+    }
 
 }
