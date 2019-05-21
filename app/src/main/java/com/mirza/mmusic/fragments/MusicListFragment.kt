@@ -54,7 +54,7 @@ class MusicListFragment : Fragment(), ItemClickListener {
             }
 
             recyclerView = view.findViewById(R.id.recyclerview)
-            recyclerView!!.itemAnimator.changeDuration = 0
+            recyclerView!!.itemAnimator?.changeDuration = 0
 
 
 

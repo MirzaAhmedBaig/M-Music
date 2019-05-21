@@ -48,6 +48,8 @@ import com.squareup.picasso.Picasso
 import io.realm.Realm
 import jp.wasabeef.blurry.Blurry
 import kotlinx.android.synthetic.main.activity_home.*
+import java.io.File
+import java.io.FileInputStream
 import java.net.URL
 
 
@@ -499,6 +501,7 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
                 val newAudio = isFavAudioReturn(Audio(data, title, album, artist, endTime, java.lang.Long.parseLong(time), false, false))
                 audioList.add(newAudio)
                 dataList!!.add(data)
+                printAudioData(data)
             }
             if (audioList.size > 0) {
                 audioList.add(audioList.last())
@@ -1040,6 +1043,23 @@ class HomeActivity : AppCompatActivity(), MusicPlayerListener, MediaPlayerContro
 
     private fun format2LenStr(num: Int): String {
         return if (num < 10) "0$num" else num.toString()
+    }
+
+
+    private fun printAudioData(path: String) {
+        try {
+            val song = File(path)
+            val file = FileInputStream(song)
+            val size = song.length()
+            file.skip(size - 128)
+            val last128 = ByteArray(128)
+            file.read(last128)
+            val id3 = String(last128)
+            Log.d(TAG, "\n\nFile TAGS : $id3")
+            file.close()
+        } catch (e: Exception) {
+            System.out.println("\nError - " + e.toString())
+        }
     }
 
 }
